@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Módulo de Ventas | Restaurante Baluarte</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/ventas.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img src="img/logo.png" alt="Logo Restaurante">
+
+        </div>
+
+        <nav>
+
+            <ul>
+
+                <li>
+
+                    <a href="index.html">
+
+                        <i class="fa-solid fa-table-columns"></i>
+
+                        Dashboard
+
+                    </a>
+
+                </li>
+
+                <li class="active">
+
+                    <a href="ventas.html">
+
+                        <i class="fa-solid fa-cart-shopping"></i>
+
+                        Ventas
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="facturas.html">
+
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+
+                        Facturas
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="productos.html">
+
+                        <i class="fa-solid fa-box"></i>
+
+                        Productos
+
+                    </a>
+
+                </li>
+
+                
+
+                <li>
+
+                    <a href="recetas.html">
+
+                        <i class="fa-solid fa-book-open"></i>
+
+                        Recetas
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="usuarios.html">
+
+                        <i class="fa-solid fa-users"></i>
+
+                        Usuarios
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="reportes.html">
+
+                        <i class="fa-solid fa-chart-line"></i>
+
+                        Reportes
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="configuracion.html">
+
+                        <i class="fa-solid fa-gear"></i>
+
+                        Configuración
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+        <div class="user-box">
+
+            <div class="avatar">
+
+                <i class="fa-solid fa-user"></i>
+
+            </div>
+
+            <div>
+
+                <h3>Juan David López</h3>
+
+                <p>Administrador</p>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- CONTENIDO -->
+
+    <main class="content">
+
+        <header class="topbar">
+
+            <div class="title-box">
+
+                <span class="number">03</span>
+
+                <div>
+
+                    <h1>Nueva Venta</h1>
+
+                    <p>Sistema POS Restaurante Baluarte</p>
+
+                </div>
+
+            </div>
+
+            <a href="index.html" class="btn-back">
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Dashboard
+
+            </a>
+
+        </header>
+
+        <section class="ventas-layout">
+
+            <!-- PRODUCTOS -->
+
+            <div class="productos-panel">
+
+                <div class="panel-header">
+
+                    <h2>
+
+                        <i class="fa-solid fa-burger"></i>
+
+                        Productos
+
+                    </h2>
+
+                    <div class="busqueda">
+
+                        <input
+                            type="text"
+                            placeholder="Buscar producto...">
+
+                        <select>
+
+                            <option>Todas</option>
+                            <option>Hamburguesas</option>
+                            <option>Pizzas</option>
+                            <option>Bebidas</option>
+                            <option>Postres</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="productos-grid" id="productosGrid"></div>
+
+            </div>
+
+                        <!-- ================= CARRITO ================= -->
+
+            <div class="carrito-panel">
+
+                <div class="panel-header">
+
+                    <h2>
+
+                        <i class="fa-solid fa-cart-shopping"></i>
+
+                        Pedido
+
+                    </h2>
+
+                </div>
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla-carrito">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Producto</th>
+
+                                <th>Cant.</th>
+
+                                <th>Total</th>
+
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="detalle">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="totales">
+
+                    <div class="fila-total">
+
+                        <span>Subtotal</span>
+
+                        <strong id="sub">$0</strong>
+
+                    </div>
+
+                    <div class="fila-total">
+
+                        <span>IVA (19%)</span>
+
+                        <strong id="iva">$0</strong>
+
+                    </div>
+
+                    <div class="fila-total total-general">
+
+                        <span>Total</span>
+
+                        <strong id="total">$0</strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ================= CLIENTE ================= -->
+
+            <div class="cliente-panel">
+
+                <div class="panel-header">+
+
+                    <h2>
+
+                        <i class="fa-solid fa-user"></i>
+
+                        Cliente
+
+                    </h2>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Nombre</label>
+
+                    <input
+                        type="text"
+                        id="cliente"
+                        placeholder="Nombre del cliente">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Documento</label>
+
+                    <input
+                        type="text"
+                        id="documento"
+                        placeholder="Número de documento">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Teléfono</label>
+
+                    <input
+                        type="text"
+                        id="telefono"
+                        placeholder="3001234567">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Método de pago</label>
+
+                    <select id="metodo">
+
+                        <option>Efectivo</option>
+
+                        <option>Tarjeta Débito</option>
+
+                        <option>Tarjeta Crédito</option>
+
+                        <option>Nequi</option>
+
+                        <option>Daviplata</option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Observaciones</label>
+
+                    <textarea
+                        id="observaciones"
+                        rows="5"
+                        placeholder="Observaciones de la venta..."></textarea>
+
+                </div>
+
+                <button class="btn-finalizar">
+
+                    <i class="fa-solid fa-check-circle"></i>
+
+                    Finalizar Venta
+
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/ventas.js"></script>
+
+</body>
+
+</html>

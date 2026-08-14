@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Usuarios | Restaurante Baluarte</title>
+
+    <!-- ESTILOS GENERALES -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- ESTILOS DEL MÓDULO USUARIOS -->
+<link rel="stylesheet" href="css/usuario.css">
+<link rel="stylesheet" href="css/gestion.css">
+
+    <!-- GOOGLE FONT -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- FONT AWESOME -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================================
+         CONTENEDOR PRINCIPAL
+         ========================================= -->
+
+    <div class="container">
+
+
+        <!-- =====================================
+             SIDEBAR
+             ===================================== -->
+
+        <aside class="sidebar">
+
+
+            <!-- LOGO -->
+
+            <div class="logo">
+
+                <img
+                    src="img/logo.png"
+                    alt="Restaurante Baluarte">
+
+            </div>
+
+
+            <!-- MENÚ -->
+
+            <nav>
+
+                <ul>
+
+
+                    <!-- DASHBOARD -->
+
+                    <li>
+
+                        <a href="index.html">
+
+                            <i class="fa-solid fa-table-columns"></i>
+
+                            Dashboard
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- VENTAS -->
+
+                    <li>
+
+                        <a href="ventas.html">
+
+                            <i class="fa-solid fa-cart-shopping"></i>
+
+                            Ventas
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- FACTURAS -->
+
+                    <li>
+
+                        <a href="facturas.html">
+
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+
+                            Facturas
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- PRODUCTOS -->
+
+                    <li>
+
+                        <a href="productos.html">
+
+                            <i class="fa-solid fa-box"></i>
+
+                            Productos
+
+                        </a>
+
+                    </li>
+
+
+
+
+                    <!-- RECETAS -->
+
+                    <li>
+
+                        <a href="recetas.html">
+
+                            <i class="fa-solid fa-book-open"></i>
+
+                            Recetas
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- USUARIOS -->
+
+                    <li class="active">
+
+                        <a href="usuarios.html">
+
+                            <i class="fa-solid fa-users"></i>
+
+                            Usuarios
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- REPORTES -->
+
+                    <li>
+
+                        <a href="reportes.html">
+
+                            <i class="fa-solid fa-chart-line"></i>
+
+                            Reportes
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- CONFIGURACIÓN -->
+
+                    <li>
+
+                        <a href="configuracion.html">
+
+                            <i class="fa-solid fa-gear"></i>
+
+                            Configuración
+
+                        </a>
+
+                    </li>
+
+
+                </ul>
+
+            </nav>
+
+
+            <!-- =================================
+                 USUARIO ACTUAL
+                 ================================= -->
+
+            <div class="user-box">
+
+
+                <div class="avatar">
+
+                    <i class="fa-solid fa-user"></i>
+
+                </div>
+
+
+                <div>
+
+                    <h3>Juan David López</h3>
+
+                    <p>Administrador</p>
+
+                </div>
+
+
+            </div>
+
+
+        </aside>
+
+
+        <!-- =====================================
+             CONTENIDO PRINCIPAL
+             ===================================== -->
+
+        <main class="content">
+
+
+            <!-- =================================
+                 AQUÍ CONTINUAREMOS
+                 ================================= -->
+
+            <section class="usuarios-container">
+
+
+                <!-- ENCABEZADO -->
+
+                <div class="topbar">
+
+
+                    <div class="title-box">
+
+
+                        <div class="number">
+
+                            06
+
+                        </div>
+
+
+                        <div>
+
+                            <h1>Usuarios</h1>
+
+                            <p>
+                                Administración de usuarios del restaurante
+                            </p>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <a
+                        href="index.html"
+                        class="btn-back">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        Dashboard
+
+                    </a>
+
+
+                </div>
+
+
+                <!-- =================================
+                     AQUÍ VAN LAS TARJETAS
+                     ================================= -->
+<!-- =========================================
+     TARJETAS RESUMEN
+     ========================================= -->
+
+<section class="cards">
+
+
+    <!-- TOTAL USUARIOS -->
+
+    <div class="card">
+
+        <div class="icon red">
+
+            <i class="fa-solid fa-users"></i>
+
+        </div>
+
+
+        <div>
+
+            <p>Total Usuarios</p>
+
+            <h2 id="totalUsuarios">0</h2>
+
+            <span>Registrados</span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ADMINISTRADORES -->
+
+    <div class="card">
+
+        <div class="icon green">
+
+            <i class="fa-solid fa-user-shield"></i>
+
+        </div>
+
+
+        <div>
+
+            <p>Administradores</p>
+
+            <h2 id="totalAdministradores">0</h2>
+
+            <span>Usuarios con acceso total</span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- PERSONAL DE VENTAS -->
+
+    <div class="card">
+
+        <div class="icon orange">
+
+            <i class="fa-solid fa-user-tie"></i>
+
+        </div>
+
+
+        <div>
+
+            <p>Personal de Ventas</p>
+
+            <h2 id="totalVentas">0</h2>
+
+            <span>Usuarios de ventas</span>
+
+        </div>
+
+    </div>
+
+
+</section>
+<!-- =========================================
+     PANEL DE GESTIÓN DE USUARIOS
+     ========================================= -->
+
+<section class="panel">
+
+
+    <!-- ENCABEZADO DEL PANEL -->
+
+    <div class="panel-header">
+
+        <h2>
+
+            <i class="fa-solid fa-users"></i>
+
+            Gestión de Usuarios
+
+        </h2>
+
+
+        <button
+            type="button"
+            class="btn-red"
+            id="btnNuevoUsuario">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Nuevo Usuario
+
+        </button>
+
+    </div>
+
+
+    <!-- =====================================
+         BUSCADOR Y FILTRO
+         ===================================== -->
+
+    <div class="busqueda">
+
+
+        <input
+            type="text"
+            id="buscarUsuario"
+            placeholder="Buscar usuario..."
+        >
+
+
+        <select id="filtroRol">
+
+            <option value="todos">
+                Todos los roles
+            </option>
+
+            <option value="Administrador">
+                Administrador
+            </option>
+
+            <option value="Ventas">
+                Ventas
+            </option>
+
+            <option value="Inventario">
+                Inventario
+            </option>
+
+        </select>
+
+
+    </div>
+
+
+    <!-- =====================================
+         TABLA DE USUARIOS
+         ===================================== -->
+
+    <div class="tabla-responsive">
+
+
+        <table class="tabla-usuarios">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>Nombre</th>
+
+                    <th>Correo</th>
+
+                    <th>Rol</th>
+
+                    <th>Estado</th>
+
+                    <th>Acciones</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="tablaUsuarios">
+
+    <!-- USUARIO 1 -->
+
+    <tr>
+
+        <td>
+            Juan David López
+        </td>
+
+        <td>
+            juan@baluarte.com
+        </td>
+
+        <td>
+            Administrador
+        </td>
+
+        <td>
+
+            <span class="estado activo">
+                Activo
+            </span>
+
+        </td>
+
+        <td>
+
+            <button
+                type="button"
+                class="btn-icon editar"
+                title="Editar">
+
+                <i class="fa-solid fa-pen"></i>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="btn-icon eliminar"
+                title="Eliminar">
+
+                <i class="fa-solid fa-trash"></i>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="btn-icon ver"
+                title="Ver">
+
+                <i class="fa-solid fa-eye"></i>
+
+            </button>
+
+        </td>
+
+    </tr>
+
+
+    <!-- USUARIO 2 -->
+
+    <tr>
+
+        <td>
+            María González
+        </td>
+
+        <td>
+            maria@baluarte.com
+        </td>
+
+        <td>
+            Ventas
+        </td>
+
+        <td>
+
+            <span class="estado activo">
+                Activo
+            </span>
+
+        </td>
+       <td>
+
+    <button
+        type="button"
+        class="btn-icon editar"
+        title="Editar usuario">
+
+        <i class="fa-solid fa-pen"></i>
+
+    </button>
+
+    <button
+        type="button"
+        class="btn-icon eliminar"
+        title="Eliminar usuario">
+
+        <i class="fa-solid fa-trash"></i>
+
+    </button>
+
+    <button
+        type="button"
+        class="btn-icon ver"
+        title="Ver usuario">
+
+        <i class="fa-solid fa-eye"></i>
+
+    </button>
+
+      </td>
+
+
+
+    <!-- USUARIO 3 -->
+
+    <tr>
+
+        <td>
+            Carlos Rodríguez
+        </td>
+
+        <td>
+            carlos@baluarte.com
+        </td>
+
+        <td>
+            Inventario
+        </td>
+
+        <td>
+
+            <span class="estado inactivo">
+                Inactivo
+            </span>
+
+        </td>
+
+        <td>
+
+            <button
+                type="button"
+                class="btn-icon editar"
+                title="Editar">
+
+                <i class="fa-solid fa-pen"></i>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="btn-icon eliminar"
+                title="Eliminar">
+
+                <i class="fa-solid fa-trash"></i>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="btn-icon ver"
+                title="Ver">
+
+                <i class="fa-solid fa-eye"></i>
+
+            </button>
+
+        </td>
+
+    </tr>
+
+</tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+</section>
+</section>
+
+</main>
+
+</div>
+
+<div class="modal-usuario" id="modalUsuario" hidden>
+    <div class="modal-usuario-contenido"><button type="button" class="cerrar" id="cerrarUsuario">&times;</button><h2 id="modalUsuarioTitulo">Nuevo usuario</h2><form id="formUsuario"><label for="nombreUsuario">Nombre</label><input id="nombreUsuario" required><label for="correoUsuario">Correo</label><input id="correoUsuario" type="email" required><label for="rolUsuario">Rol</label><select id="rolUsuario"><option>Administrador</option><option>Ventas</option><option>Inventario</option></select><label for="estadoUsuario">Estado</label><select id="estadoUsuario"><option>Activo</option><option>Inactivo</option></select><button class="btn-red" type="submit">Guardar usuario</button></form></div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/usuarios.js"></script>
+</body>
+</html>

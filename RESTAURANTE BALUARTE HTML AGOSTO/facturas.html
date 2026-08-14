@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Facturas | Restaurante Baluarte</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+
+    <link rel="stylesheet" href="css/facturas.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img src="img/logo.png" alt="Logo Restaurante">
+
+        </div>
+
+        <nav>
+
+            <ul>
+
+                <li>
+
+                    <a href="index.html">
+
+                        <i class="fa-solid fa-table-columns"></i>
+
+                        Dashboard
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="ventas.html">
+
+                        <i class="fa-solid fa-cart-shopping"></i>
+
+                        Ventas
+
+                    </a>
+
+                </li>
+
+                <li class="active">
+
+                    <a href="facturas.html">
+
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+
+                        Facturas
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="productos.html">
+
+                        <i class="fa-solid fa-box"></i>
+
+                        Productos
+
+                    </a>
+
+                </li>
+
+               
+
+                <li>
+
+                    <a href="usuarios.html">
+
+                        <i class="fa-solid fa-users"></i>
+
+                        Usuarios
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="reportes.html">
+
+                        <i class="fa-solid fa-chart-line"></i>
+
+                        Reportes
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="recetas.html">
+
+                        <i class="fa-solid fa-book-open"></i>
+
+                        Recetas
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="configuracion.html">
+
+                        <i class="fa-solid fa-gear"></i>
+
+                        Configuración
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+        <div class="user-box">
+
+            <div class="avatar">
+
+                <i class="fa-solid fa-user"></i>
+
+            </div>
+
+            <div>
+
+                <h3>Juan David López</h3>
+
+                <p>Administrador</p>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- CONTENIDO -->
+
+    <main class="content">
+
+        <header class="topbar">
+
+            <div class="title-box">
+
+                <span class="number">04</span>
+
+                <div>
+
+                    <h1>Facturas</h1>
+
+                    <p>Historial de ventas realizadas</p>
+
+                </div>
+
+            </div>
+
+            <a href="ventas.html" class="btn-back">
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Volver a Ventas
+
+            </a>
+
+        </header>
+
+        <!-- TARJETAS RESUMEN -->
+
+        <section class="cards-facturas">
+
+            <div class="card-info">
+
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+
+                <div>
+
+                    <h2 id="totalFacturas">0</h2>
+
+                    <span>Facturas</span>
+
+                </div>
+
+            </div>
+
+            <div class="card-info">
+
+                <i class="fa-solid fa-sack-dollar"></i>
+
+                <div>
+
+                    <h2 id="ventasTotales">$0</h2>
+
+                    <span>Ventas Totales</span>
+
+                </div>
+
+            </div>
+
+            <div class="card-info">
+
+                <i class="fa-solid fa-calendar-days"></i>
+
+                <div>
+
+                    <h2 id="fechaActual">Hoy</h2>
+
+                    <span>Fecha</span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- FILTROS -->
+
+        <section class="panel-facturas">
+
+            <div class="panel-header">
+
+                <h2>
+
+                    <i class="fa-solid fa-receipt"></i>
+
+                    Historial de Facturas
+
+                </h2>
+
+                <div class="acciones">
+
+                    <input
+                        type="text"
+                        id="buscarFactura"
+                        placeholder="Buscar cliente o factura...">
+
+                    <button class="btn-exportar">
+
+                        <i class="fa-solid fa-file-export"></i>
+
+                        Exportar
+
+                    </button>
+
+                </div>
+
+            </div>
+                        <div class="tabla-responsive">
+
+                <table class="tabla-facturas">
+
+                    <thead>
+
+                        <tr>
+
+                            <th># Factura</th>
+
+                            <th>Fecha</th>
+
+                            <th>Cliente</th>
+
+                            <th>Documento</th>
+
+                            <th>Método</th>
+
+                            <th>Total</th>
+
+                            <th>Estado</th>
+
+                            <th>Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="listaFacturas">
+
+                        <!-- Aquí JavaScript agregará las facturas -->
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div id="sinFacturas" class="sin-facturas">
+
+                <i class="fa-solid fa-file-circle-xmark"></i>
+
+                <h2>No existen facturas registradas</h2>
+
+                <p>
+
+                    Cuando realices una venta desde el módulo de Ventas,
+                    automáticamente aparecerá aquí.
+
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/facturas.js"></script>
+
+</body>
+
+</html>

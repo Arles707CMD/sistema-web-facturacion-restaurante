@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recetas | Restaurante Baluarte</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/recetas.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <aside class="sidebar">
+        <div class="logo"><img src="img/logo.png" alt="Restaurante Baluarte"></div>
+        <nav><ul>
+            <li><a href="index.html"><i class="fa-solid fa-table-columns"></i>Dashboard</a></li>
+            <li><a href="ventas.html"><i class="fa-solid fa-cart-shopping"></i>Ventas</a></li>
+            <li><a href="facturas.html"><i class="fa-solid fa-file-invoice-dollar"></i>Facturas</a></li>
+            <li><a href="productos.html"><i class="fa-solid fa-box"></i>Productos</a></li>
+            <li class="active"><a href="recetas.html"><i class="fa-solid fa-book-open"></i>Recetas</a></li>
+            <li><a href="usuarios.html"><i class="fa-solid fa-users"></i>Usuarios</a></li>
+            <li><a href="reportes.html"><i class="fa-solid fa-chart-line"></i>Reportes</a></li>
+            <li><a href="configuracion.html"><i class="fa-solid fa-gear"></i>Configuración</a></li>
+        </ul></nav>
+        <div class="user-box"><div class="avatar"><i class="fa-solid fa-user"></i></div><div><h3>Juan David López</h3><p>Administrador</p></div></div>
+    </aside>
+    <main class="content">
+        <header class="topbar recetas-topbar">
+            <div class="title-box"><span class="number">07</span><div><h1>Recetas</h1><p>Productos del catálogo y sus preparaciones</p></div></div>
+            <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i>Dashboard</a>
+        </header>
+        <section class="recetas-cards">
+            <article class="receta-card"><div class="receta-icon red"><i class="fa-solid fa-book-open"></i></div><div><p>Total recetas</p><h2 id="totalRecetas">0</h2><span>Vinculadas a productos</span></div></article>
+            <article class="receta-card"><div class="receta-icon green"><i class="fa-solid fa-utensils"></i></div><div><p>Recetas activas</p><h2 id="recetasActivas">0</h2><span>Disponibles para venta</span></div></article>
+            <article class="receta-card"><div class="receta-icon orange"><i class="fa-solid fa-clock"></i></div><div><p>En revisión</p><h2 id="recetasRevision">0</h2><span>Por completar</span></div></article>
+            <article class="receta-card"><div class="receta-icon blue"><i class="fa-solid fa-box-archive"></i></div><div><p>Inactivas</p><h2 id="recetasInactivas">0</h2><span>No disponibles</span></div></article>
+        </section>
+        <section class="recetas-panel">
+            <div class="recetas-header"><h2>Lista de recetas</h2><div class="recetas-tools"><div class="recetas-search"><input id="buscarReceta" type="search" placeholder="Buscar receta o producto..."><i class="fa-solid fa-magnifying-glass"></i></div><select id="filtroEstado"><option value="Todas">Todos los estados</option><option value="Activa">Activas</option><option value="En revisión">En revisión</option><option value="Inactiva">Inactivas</option></select><button type="button" class="btn-nueva-receta" id="btnNuevaReceta"><i class="fa-solid fa-plus"></i>Nueva receta</button></div></div>
+            <div class="tabla-responsive"><table class="tabla-recetas"><thead><tr><th>Código</th><th>Receta / producto</th><th>Categoría</th><th>Porciones</th><th>Tiempo prep.</th><th>Estado</th><th>Actualización</th><th>Acciones</th></tr></thead><tbody id="listaRecetas"></tbody></table></div>
+            <p class="recetas-footer" id="resumenRecetas"></p>
+        </section>
+    </main>
+</div>
+<div id="modalReceta" class="modal-receta" aria-hidden="true"><div class="modal-receta-content"><div class="modal-receta-header"><h2 id="tituloModalReceta">Nueva receta</h2><button type="button" class="cerrar-receta" id="cerrarReceta">&times;</button></div><form id="formReceta"><div class="form-receta-grid"><div class="form-group"><label for="productoReceta">Producto del catálogo</label><select id="productoReceta" required></select></div><div class="form-group"><label for="porcionesReceta">Porciones</label><input id="porcionesReceta" type="number" min="1" value="1" required></div><div class="form-group"><label for="tiempoReceta">Tiempo de preparación (min)</label><input id="tiempoReceta" type="number" min="1" value="15" required></div><div class="form-group"><label for="estadoReceta">Estado</label><select id="estadoReceta"><option>Activa</option><option>En revisión</option><option>Inactiva</option></select></div><div class="form-group form-receta-full"><label for="descripcionReceta">Descripción de la preparación</label><textarea id="descripcionReceta" rows="4" placeholder="Describe la preparación o ingredientes principales."></textarea></div></div><div class="modal-receta-actions"><button type="button" class="btn-cancelar-receta" id="cancelarReceta">Cancelar</button><button type="submit" class="btn-nueva-receta">Guardar receta</button></div></form></div></div>
+<script src="js/data.js"></script>
+<script src="js/recetas.js"></script>
+</body>
+</html>

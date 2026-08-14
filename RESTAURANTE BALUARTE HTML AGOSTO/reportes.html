@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Reportes | Restaurante Baluarte</title><link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/gestion.css"></head>
+<body><main class="gestion"><header class="gestion-header"><div><p>Restaurante Baluarte</p><h1>Reportes de ventas</h1></div><a class="btn-gestion btn-secundario" href="index.html">Volver al dashboard</a></header>
+<section class="gestion-grid"><article class="gestion-card"><span>Ventas acumuladas</span><strong id="reporteVentas">$0</strong></article><article class="gestion-card"><span>Facturas registradas</span><strong id="reporteFacturas">0</strong></article><article class="gestion-card"><span>Unidades vendidas</span><strong id="reporteUnidades">0</strong></article><article class="gestion-card"><span>Productos con stock bajo</span><strong id="reporteStock">0</strong></article></section>
+<section class="gestion-panel"><div class="gestion-header"><h2>Productos vendidos</h2><button class="btn-gestion" id="exportarReporte">Exportar CSV</button></div><div style="overflow:auto"><table class="gestion-table"><thead><tr><th>Producto</th><th>Unidades</th><th>Ventas</th></tr></thead><tbody id="tablaReporte"></tbody></table></div></section>
+</main><script src="js/data.js"></script><script src="js/reportes.js"></script></body></html>

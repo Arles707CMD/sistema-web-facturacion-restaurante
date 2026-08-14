@@ -1,0 +1,611 @@
+/*==================================================
+        MODULO DE VENTAS
+        RESTAURANTE BALUARTE
+==================================================*/
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:#f4f6f9;
+}
+
+/*======================================
+                BOTON
+=======================================*/
+
+.btn-back{
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    text-decoration:none;
+
+    color:#fff;
+
+    background:#e53935;
+
+    padding:12px 18px;
+
+    border-radius:10px;
+
+    font-weight:600;
+
+    transition:.30s;
+
+}
+
+.btn-back:hover{
+
+    background:#c62828;
+
+}
+
+/*======================================
+            GRID PRINCIPAL
+=======================================*/
+
+.ventas-layout{
+
+    display:grid;
+
+    grid-template-columns:2fr 1.3fr 1fr;
+
+    gap:25px;
+
+    margin-top:30px;
+
+    align-items:flex-start;
+
+}
+
+/*======================================
+            PANEL GENERAL
+=======================================*/
+
+.productos-panel,
+.carrito-panel,
+.cliente-panel{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:22px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+/*======================================
+            TITULOS
+=======================================*/
+
+.panel-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.panel-header h2{
+
+    font-size:22px;
+
+    color:#1d1d1d;
+
+    font-weight:700;
+
+}
+
+.panel-header i{
+
+    color:#e53935;
+
+    margin-right:8px;
+
+}
+
+/*======================================
+            BUSCADOR
+=======================================*/
+
+.busqueda{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.busqueda input{
+
+    width:230px;
+
+    padding:12px;
+
+    border:1px solid #ddd;
+
+    border-radius:10px;
+
+    outline:none;
+
+    transition:.3s;
+
+}
+
+.busqueda input:focus{
+
+    border-color:#e53935;
+
+}
+
+.busqueda select{
+
+    padding:12px;
+
+    border:1px solid #ddd;
+
+    border-radius:10px;
+
+    outline:none;
+
+}
+
+/*======================================
+            PRODUCTOS
+=======================================*/
+
+.productos-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:18px;
+
+}
+
+.producto-card{
+
+    border:1px solid #ececec;
+
+    background:#fafafa;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    transition:.30s;
+
+}
+
+.producto-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 10px 20px rgba(0,0,0,.10);
+
+}
+
+.producto-card h3{
+
+    font-size:18px;
+
+    margin-bottom:10px;
+
+    color:#222;
+
+}
+
+.producto-card span{
+
+    display:block;
+
+    font-size:22px;
+
+    color:#e53935;
+
+    font-weight:700;
+
+    margin-bottom:15px;
+
+}
+
+.producto-card button{
+
+    width:100%;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#e53935;
+
+    color:white;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.30s;
+
+}
+
+.producto-card button:hover{
+
+    background:#c62828;
+
+}
+/*======================================
+            CARRITO
+=======================================*/
+
+.tabla-responsive{
+    overflow-x:auto;
+}
+
+.tabla-carrito{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+.tabla-carrito thead{
+    background:#f5f5f5;
+}
+
+.tabla-carrito th{
+    padding:12px;
+    text-align:left;
+    font-size:14px;
+    color:#555;
+    border-bottom:2px solid #ececec;
+}
+
+.tabla-carrito td{
+    padding:14px 10px;
+    border-bottom:1px solid #ececec;
+    font-size:14px;
+}
+
+.tabla-carrito tbody tr:hover{
+    background:#fafafa;
+}
+
+/*======================================
+            TOTALES
+=======================================*/
+
+.totales{
+    margin-top:25px;
+    border-top:2px solid #ececec;
+    padding-top:20px;
+}
+
+.fila-total{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    font-size:16px;
+}
+
+.fila-total strong{
+    color:#333;
+}
+
+.total-general{
+    margin-top:18px;
+    padding-top:18px;
+    border-top:2px dashed #ddd;
+    font-size:22px;
+    font-weight:700;
+}
+
+.total-general strong{
+    color:#e53935;
+    font-size:26px;
+}
+
+/*======================================
+            FORMULARIO
+=======================================*/
+
+.form-group{
+    margin-bottom:18px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+
+    width:100%;
+
+    padding:12px;
+
+    border:1px solid #d9d9d9;
+
+    border-radius:10px;
+
+    outline:none;
+
+    transition:.30s;
+
+    font-size:15px;
+
+    font-family:'Poppins',sans-serif;
+
+}
+
+.form-group textarea{
+    resize:none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+
+    border-color:#e53935;
+
+    box-shadow:0 0 0 3px rgba(229,57,53,.15);
+
+}
+
+/*======================================
+      BOTON FINALIZAR
+=======================================*/
+
+.btn-finalizar{
+
+    width:100%;
+
+    margin-top:15px;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#e53935;
+
+    color:#fff;
+
+    font-size:17px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.30s;
+
+}
+
+.btn-finalizar:hover{
+
+    background:#c62828;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 10px 18px rgba(229,57,53,.25);
+
+}
+
+.btn-finalizar i{
+    margin-right:8px;
+}
+/*======================================
+        RESPONSIVE
+=======================================*/
+
+/* Portátiles: el formulario pasa debajo para evitar columnas recortadas. */
+@media (min-width:1201px) and (max-width:1500px){
+
+    .ventas-layout{
+
+        grid-template-columns:minmax(0, 1.6fr) minmax(320px, 1fr);
+
+    }
+
+    .cliente-panel{
+
+        grid-column:1 / -1;
+
+    }
+
+}
+
+@media (max-width:1200px){
+
+    .ventas-layout{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .productos-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    .busqueda{
+
+        flex-direction:column;
+
+    }
+
+    .busqueda input{
+
+        width:100%;
+
+    }
+
+    .productos-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .panel-header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:15px;
+
+    }
+
+    .productos-panel,
+    .carrito-panel,
+    .cliente-panel{
+
+        padding:18px;
+
+    }
+
+}
+
+@media (max-width:480px){
+
+    .productos-panel,
+    .carrito-panel,
+    .cliente-panel{
+
+        border-radius:14px;
+        padding:15px;
+
+    }
+
+    .producto-card{
+
+        padding:16px;
+
+    }
+
+    .producto-card h3{
+
+        font-size:16px;
+
+    }
+
+    .producto-card span{
+
+        font-size:19px;
+
+    }
+
+    .total-general{
+
+        font-size:19px;
+
+    }
+
+    .total-general strong{
+
+        font-size:22px;
+
+    }
+
+}
+
+/*======================================
+        EFECTOS
+=======================================*/
+
+.producto-card,
+.carrito-panel,
+.cliente-panel{
+
+    transition:.30s;
+
+}
+
+.productos-panel:hover,
+.carrito-panel:hover,
+.cliente-panel:hover{
+
+    box-shadow:0 12px 30px rgba(0,0,0,.12);
+
+}
+
+/*======================================
+        SCROLL TABLA
+=======================================*/
+
+.tabla-responsive::-webkit-scrollbar{
+
+    height:8px;
+
+}
+
+.tabla-responsive::-webkit-scrollbar-thumb{
+
+    background:#d4d4d4;
+
+    border-radius:20px;
+
+}
+
+.tabla-responsive::-webkit-scrollbar-thumb:hover{
+
+    background:#b5b5b5;
+
+}
+
+/*======================================
+        ANIMACIONES
+=======================================*/
+
+@keyframes aparecer{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(15px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+.productos-panel,
+.carrito-panel,
+.cliente-panel{
+
+    animation:aparecer .5s ease;
+
+}
