@@ -1,73 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Metas</title>
-
-<link rel="stylesheet" href="css/styles.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metas | Restaurante Baluarte</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/metas.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
-
 <body>
-
-<div class="main">
-
-<div class="header-ventas">
-
-<a href="index.html" class="btn-regresar">
-⬅ Volver
-</a>
-
-</div>
-
-<h1 class="titulo-ventas">
-📊 Metas Mensuales
-</h1>
-
-<div class="metas-grid">
-
-<div class="meta-card">
-
-<h2>🍽️ Platillos Vendidos</h2>
-
-<h1 id="metaPlatillos">0</h1>
-
-</div>
-
-<div class="meta-card">
-
-<h2>💰 Dinero Vendido</h2>
-
-<h1 id="metaDinero">$0</h1>
-
-</div>
-
-<div class="meta-card">
-
-<h2>📈 Meta Alcanzada</h2>
-
-<h1 id="metaPorcentaje">0%</h1>
-
-</div>
-
-<div class="meta-card">
-
-<h2>🎯 Meta Mensual</h2>
-
-<h1 id="metaMensual">$0</h1>
-
-</div>
-
-</div>
-
-</div>
-
-<script src="js/data.js"></script>
-<script src="js/metas.js"></script>
+    <main class="metas-page">
+        <header class="metas-topbar">
+            <a href="index.html" class="metas-back"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+            <div class="metas-title"><span class="metas-kicker">CONTROL FINANCIERO</span><h1>Metas de ventas</h1><p>Seguimiento basado en las facturas registradas.</p></div>
+            <button type="button" id="btnEditarMeta" class="metas-outline"><i class="fa-solid fa-pen"></i> Ajustar meta</button>
+        </header>
+        <section class="periodo-bar"><div class="periodo-buttons"><button class="periodo activo" data-periodo="mes">Este mes</button><button class="periodo" data-periodo="semana">Últimos 7 días</button><button class="periodo" data-periodo="todo">Histórico</button></div><span id="etiquetaPeriodo" class="periodo-label"></span></section>
+        <section class="resumen-principal">
+            <article class="progreso-card"><div class="progreso-head"><div><span>Progreso de la meta mensual</span><h2 id="metaPorcentaje">0%</h2></div><div class="progreso-icon"><i class="fa-solid fa-bullseye"></i></div></div><div class="barra-progreso"><span id="barraMeta"></span></div><div class="progreso-footer"><span id="metaDinero">$0</span><span id="metaMensual">Meta: $0</span></div><p id="mensajeMeta" class="mensaje-meta">Aún no hay ventas registradas.</p></article>
+            <article class="proyeccion-card"><span class="card-eyebrow">PROYECCIÓN DEL MES</span><h2 id="proyeccionMensual">$0</h2><p id="detalleProyeccion">Registra ventas para estimar el cierre.</p><div class="proyeccion-line"><i class="fa-solid fa-chart-line"></i><span id="estadoProyeccion">Sin datos</span></div></article>
+        </section>
+        <section class="metricas-grid">
+            <article class="metrica"><div class="metrica-icon red"><i class="fa-solid fa-utensils"></i></div><div><span>Platillos vendidos</span><strong id="metaPlatillos">0</strong><small>En el periodo seleccionado</small></div></article>
+            <article class="metrica"><div class="metrica-icon blue"><i class="fa-solid fa-file-invoice"></i></div><div><span>Facturas</span><strong id="metaFacturas">0</strong><small>Ventas registradas</small></div></article>
+            <article class="metrica"><div class="metrica-icon green"><i class="fa-solid fa-receipt"></i></div><div><span>Ticket promedio</span><strong id="ticketPromedio">$0</strong><small>Por factura</small></div></article>
+            <article class="metrica"><div class="metrica-icon orange"><i class="fa-solid fa-calendar-day"></i></div><div><span>Meta diaria</span><strong id="metaDiaria">$0</strong><small id="diasRestantes">Días restantes del mes</small></div></article>
+        </section>
+        <section class="metas-dashboard">
+            <article class="panel-metas"><div class="panel-title"><div><h2>Ventas por día</h2><p>Comportamiento del periodo seleccionado</p></div><span id="totalGrafica"></span></div><div id="graficaVentas" class="grafica-ventas"></div><div id="etiquetasGrafica" class="etiquetas-grafica"></div></article>
+            <article class="panel-metas ranking"><div class="panel-title"><div><h2>Productos destacados</h2><p>Más vendidos por cantidad</p></div><i class="fa-solid fa-medal"></i></div><ol id="rankingProductos" class="ranking-lista"></ol></article>
+        </section>
+        <section class="panel-metas detalle-meta"><div><span class="card-eyebrow">FALTANTE PARA ALCANZAR LA META</span><h2 id="faltanteMeta">$0</h2><p id="detalleFaltante">Configura una meta para iniciar el seguimiento.</p></div><div class="detalle-meta-actions"><a href="ventas.html" class="metas-primary"><i class="fa-solid fa-plus"></i> Registrar venta</a><a href="reportes.html" class="metas-outline">Ver reportes</a></div></section>
+    </main>
+    <dialog id="modalMeta" class="modal-meta"><form method="dialog" id="formMeta"><button type="button" class="cerrar-meta" id="cerrarMeta" aria-label="Cerrar">&times;</button><span class="card-eyebrow">CONFIGURACIÓN</span><h2>Actualizar meta mensual</h2><p>Esta cifra se utiliza para calcular el avance y la proyección.</p><label for="nuevaMeta">Meta de ventas (COP)</label><input id="nuevaMeta" type="number" min="0" step="1000" required><div class="modal-meta-actions"><button type="button" id="cancelarMeta" class="metas-outline">Cancelar</button><button class="metas-primary" type="submit">Guardar meta</button></div></form></dialog>
+    <script src="js/data.js"></script>
+    <script src="js/metas.js"></script>
 </body>
 </html>
