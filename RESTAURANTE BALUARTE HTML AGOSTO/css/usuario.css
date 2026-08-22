@@ -197,6 +197,16 @@
 
     flex-shrink:0;
 
+    box-shadow:0 6px 14px rgba(0,0,0,.15);
+
+    transition:.3s;
+
+}
+
+.usuarios-container .card:hover .icon{
+
+    transform:scale(1.1) rotate(-6deg);
+
 }
 
 
@@ -322,7 +332,9 @@
 
     background:#c62828;
 
-    transform:translateY(-1px);
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 18px rgba(229,57,53,.3);
 
 }
 

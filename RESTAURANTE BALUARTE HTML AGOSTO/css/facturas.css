@@ -114,6 +114,16 @@ body{
 
     font-size:28px;
 
+    box-shadow:0 6px 16px rgba(229,57,53,.3);
+
+    transition:.3s;
+
+}
+
+.card-info:hover i{
+
+    transform:scale(1.1) rotate(-8deg);
+
 }
 
 .card-info h2{
@@ -233,11 +243,17 @@ body{
 
     transition:.30s;
 
+    box-shadow:0 4px 12px rgba(25,118,210,.25);
+
 }
 
 .btn-exportar:hover{
 
     background:#1565c0;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 18px rgba(25,118,210,.3);
 
 }
 

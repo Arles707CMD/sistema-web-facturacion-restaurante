@@ -63,25 +63,21 @@ body{
 ==============================*/
 
 .sidebar{
-
     width:300px;
     min-height:100vh;
-
     background:linear-gradient(180deg,#08111D 0%, #111827 100%);
-
     display:flex;
     flex-direction:column;
-
     color:white;
-    .sidebar li.active{
-
- background:#e53935;
-
- box-shadow:
-
- 0 10px 25px rgba(229,57,53,.45);
-
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
 }
+
+.sidebar .active a{
+    background:#e53935;
+    box-shadow:0 10px 25px rgba(229,57,53,.45);
 }
 
 
@@ -150,29 +146,6 @@ body{
     background:#2563EB;
 
     transform:scaleY(1.05);
-
-}
-
-.sidebar .active a{
-
-    background:#DC2626;
-
-    border-radius:14px;
-
-    box-shadow:
-
-0 12px 35px rgba(0,0,0,.08);
-
-transition:.3s;
-.card:hover{
-
-transform:translateY(-5px);
-
-box-shadow:
-
-0 18px 40px rgba(0,0,0,.12);
-
-}
 
 }
 
@@ -571,6 +544,28 @@ transition:.3s;
 
 background:#B91C1C;
 
+}
+
+.btn-reporte{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#DC2626;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    text-decoration:none;
+    transition:.3s;
+    box-shadow:0 6px 14px rgba(220,38,38,.2);
+}
+
+.btn-reporte:hover{
+    background:#B91C1C;
+    transform:translateY(-2px);
 }
 
 .chart{

@@ -25,11 +25,11 @@
 
     <aside class="sidebar">
 
-            <div class="logo">
+        <div class="logo">
 
-                 <img src="img/logo.png" alt="Restaurante Baluarte">
+            <img src="img/logo.png" alt="Restaurante Baluarte">
 
-              </div>
+        </div>
 
         <nav>
 
@@ -48,17 +48,14 @@
                         Ventas
                     </a>
                 </li>
-                 <li>
 
+                <li>
                     <a href="facturas.html">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        Facturas
+                    </a>
+                </li>
 
-                      <i class="fa-solid fa-file-invoice-dollar"></i>
-
-                     Facturas
-
-                </a>
-
-               </li>
                 <li>
                     <a href="productos.html">
                         <i class="fa-solid fa-box"></i>
@@ -66,7 +63,12 @@
                     </a>
                 </li>
 
-            
+                <li>
+                    <a href="metas.html">
+                        <i class="fa-solid fa-bullseye"></i>
+                        Metas
+                    </a>
+                </li>
 
                 <li>
                     <a href="recetas.html">
@@ -74,8 +76,6 @@
                         Recetas
                     </a>
                 </li>
-
-            
 
                 <li>
                     <a href="usuarios.html">
@@ -111,9 +111,10 @@
             </div>
 
             <div>
-<h3>Juan David López</h3>
 
-<p>Administrador</p>
+                <h3>Juan David López</h3>
+
+                <p>Administrador</p>
 
             </div>
 
@@ -145,7 +146,7 @@
 
                 <i class="fa-regular fa-calendar"></i>
 
-            <span id="fechaActual"></span>
+                <span id="fechaActual"></span>
 
                 <i class="fa-regular fa-bell"></i>
 
@@ -240,169 +241,135 @@
             </div>
 
         </section>
+
         <!-- CONTENIDO INFERIOR -->
 
-<section class="dashboard-grid">
+        <section class="dashboard-grid">
 
-    <!-- GRAFICA -->
+            <!-- GRAFICA -->
 
-    <div class="panel">
+            <div class="panel">
 
-        <div class="panel-header">
+                <div class="panel-header">
 
-            <h3>Resumen de ventas</h3>
+                    <h3>Resumen de ventas</h3>
 
-            <a href="reportes.html" class="btn-reporte">Ver Reporte</a>
+                    <a href="reportes.html" class="btn-reporte">Ver Reporte</a>
 
-        </div>
+                </div>
 
-       <div class="chart">
+                <div class="chart">
 
-    <canvas id="ventasChart"></canvas>
+                    <canvas id="ventasChart"></canvas>
+
+                </div>
+
+            </div>
+
+            <!-- PRODUCTOS -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>Productos más vendidos</h3>
+
+                </div>
+
+                <div class="tabla-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Producto</th>
+
+                            <th>Ventas</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="productosMasVendidos">
+
+                    </tbody>
+
+                </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- SEGUNDA FILA -->
+
+        <section class="dashboard-grid">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>Actividad reciente</h3>
+
+                </div>
+
+                <ul class="activity" id="actividadReciente">
+
+                </ul>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>Resumen de inventario</h3>
+
+                </div>
+
+                <div class="inventory">
+
+                    <div>
+
+                        <h2 id="totalProductosDashboard">0</h2>
+
+                        <p>Productos</p>
+
+                    </div>
+
+                    <div>
+
+                        <h2 id="bajoStockDashboard">0</h2>
+
+                        <p>Bajo Stock</p>
+
+                    </div>
+
+                    <div>
+
+                        <h2 id="disponibilidadDashboard">0%</h2>
+
+                        <p>Disponibilidad</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
 
 </div>
 
-    </div>
-
-    <!-- PRODUCTOS -->
-
-    <div class="panel">
-
-        <div class="panel-header">
-
-            <h3>Productos más vendidos</h3>
-
-        </div>
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>Producto</th>
-                    <th>Ventas</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="productosMasVendidos">
-
-                <tr>
-
-                    <td>Hamburguesa Especial</td>
-
-                    <td>120</td>
-
-                </tr>
-
-                <tr>
-
-                    <td>Pizza Familiar</td>
-
-                    <td>98</td>
-
-                </tr>
-
-                <tr>
-
-                    <td>LasaÃ±a</td>
-
-                    <td>81</td>
-
-                </tr>
-
-                <tr>
-
-                    <td>Perro Especial</td>
-
-                    <td>73</td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</section>
-
-<!-- SEGUNDA FILA -->
-
-<section class="dashboard-grid">
-
-    <div class="panel">
-
-        <div class="panel-header">
-
-            <h3>Actividad reciente</h3>
-
-        </div>
-
-        <ul class="activity" id="actividadReciente">
-
-            <li>âœ… Venta #1052 registrada.</li>
-
-            <li>âœ… Factura generada correctamente.</li>
-
-            <li>âš  Producto "Tomate" con poco stock.</li>
-
-            <li>ðŸ‘¤ Usuario Carlos iniciÃ³ sesiÃ³n.</li>
-
-            <li>ðŸ“¦ LlegÃ³ pedido del proveedor.</li>
-
-        </ul>
-
-    </div>
-
-    <div class="panel">
-
-        <div class="panel-header">
-
-            <h3>Resumen de inventario</h3>
-
-        </div>
-
-        <div class="inventory">
-
-            <div>
-
-                <h2 id="totalProductosDashboard">0</h2>
-
-                <p>Productos</p>
-
-            </div>
-
-            <div>
-
-                <h2 id="bajoStockDashboard">0</h2>
-
-                <p>Bajo Stock</p>
-
-            </div>
-
-            <div>
-
-                <h2 id="disponibilidadDashboard">0%</h2>
-
-                <p>Disponibilidad</p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-</main>
-
-</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="js/data.js"></script>
+
 <script src="js/app.js"></script>
 
 </body>
