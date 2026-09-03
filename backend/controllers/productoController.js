@@ -101,6 +101,17 @@ async function crearProducto(req, res) {
             });
         }
 
+        const { idCategoria } = req.body;
+
+        const categoriaExiste = await productoModel.existeCategoria(idCategoria);
+
+        if (!categoriaExiste) {
+            return res.status(400).json({
+                mensaje: 'La categoría seleccionada no existe.',
+                errores: ['La categoría seleccionada no existe.']
+            });
+        }
+
         const idProducto = await productoModel.crearProducto(req.body);
 
         res.status(201).json({
@@ -138,6 +149,17 @@ async function actualizarProducto(req, res) {
             return res.status(400).json({
                 mensaje: 'Datos del producto inválidos',
                 errores
+            });
+        }
+
+        const { idCategoria } = req.body;
+
+        const categoriaExiste = await productoModel.existeCategoria(idCategoria);
+
+        if (!categoriaExiste) {
+            return res.status(400).json({
+                mensaje: 'La categoría seleccionada no existe.',
+                errores: ['La categoría seleccionada no existe.']
             });
         }
 

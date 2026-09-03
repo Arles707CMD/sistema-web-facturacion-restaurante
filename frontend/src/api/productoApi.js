@@ -7,12 +7,31 @@
 
 const API_URL = '/api/productos';
 
+// Construye el mensaje de error a partir de la respuesta del backend.
+// Si la respuesta incluye errores detallados ({ mensaje, errores: [...] }),
+// se agregan como líneas para que el usuario identifique cada campo.
+function formatearMensajeError(resultado, mensajePorDefecto) {
+    const mensajeBase = resultado?.mensaje || mensajePorDefecto;
+
+    if (Array.isArray(resultado?.errores) && resultado.errores.length > 0) {
+        const detalles = resultado.errores.map((error) => '• ' + error);
+
+        return [mensajeBase, ...detalles].join('\n');
+    }
+
+    return mensajeBase;
+}
+
 // Obtiene todos los productos desde la API.
 async function obtenerProductos() {
     const respuesta = await fetch(API_URL);
 
     if (!respuesta.ok) {
-        throw new Error('Error al obtener los productos');
+        const resultado = await respuesta.json().catch(() => null);
+
+        throw new Error(
+            formatearMensajeError(resultado, 'Error al obtener los productos')
+        );
     }
 
     return respuesta.json();
@@ -23,7 +42,11 @@ async function obtenerProductoPorId(id) {
     const respuesta = await fetch(`${API_URL}/${id}`);
 
     if (!respuesta.ok) {
-        throw new Error('Error al obtener el producto');
+        const resultado = await respuesta.json().catch(() => null);
+
+        throw new Error(
+            formatearMensajeError(resultado, 'Error al obtener el producto')
+        );
     }
 
     return respuesta.json();
@@ -42,7 +65,9 @@ async function crearProducto(datos) {
     const resultado = await respuesta.json();
 
     if (!respuesta.ok) {
-        throw new Error(resultado.mensaje || 'Error al crear el producto');
+        throw new Error(
+            formatearMensajeError(resultado, 'Error al crear el producto')
+        );
     }
 
     return resultado;
@@ -61,7 +86,9 @@ async function actualizarProducto(id, datos) {
     const resultado = await respuesta.json();
 
     if (!respuesta.ok) {
-        throw new Error(resultado.mensaje || 'Error al actualizar el producto');
+        throw new Error(
+            formatearMensajeError(resultado, 'Error al actualizar el producto')
+        );
     }
 
     return resultado;
@@ -76,7 +103,9 @@ async function eliminarProducto(id) {
     const resultado = await respuesta.json();
 
     if (!respuesta.ok) {
-        throw new Error(resultado.mensaje || 'Error al eliminar el producto');
+        throw new Error(
+            formatearMensajeError(resultado, 'Error al eliminar el producto')
+        );
     }
 
     return resultado;

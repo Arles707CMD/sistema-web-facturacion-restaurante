@@ -7,6 +7,8 @@
 
 import { useEffect, useState } from 'react';
 
+import Mensaje from './Mensaje';
+
 // Categorías que coinciden con la tabla categorias
 const categorias = [
     { id: 1, nombre: 'Hamburguesas' },
@@ -23,6 +25,9 @@ function ProductoForm({ producto, onGuardar, onCerrar }) {
         stock: '',
         idCategoria: ''
     });
+
+    // Mensaje de validación local del formulario
+    const [errorFormulario, setErrorFormulario] = useState('');
 
     // Cuando cambia el producto a editar se rellenan los campos
     useEffect(() => {
@@ -43,9 +48,11 @@ function ProductoForm({ producto, onGuardar, onCerrar }) {
                 idCategoria: ''
             });
         }
+
+        setErrorFormulario('');
     }, [producto]);
 
-    // Actualiza una propiedad del formulario
+    // Actualiza una propiedad del formulario y limpia el error local
     function manejarCambio(evento) {
         const { name, value } = evento.target;
 
@@ -53,11 +60,36 @@ function ProductoForm({ producto, onGuardar, onCerrar }) {
             ...formulario,
             [name]: value
         });
+
+        if (errorFormulario) {
+            setErrorFormulario('');
+        }
+    }
+
+    // Valida los campos en el formulario antes de enviarlos al backend
+    function validarFormulario() {
+        const stockNumero = Number(formulario.stock);
+
+        if (!formulario.nombre.trim()) {
+            setErrorFormulario('El nombre del producto es obligatorio.');
+            return false;
+        }
+
+        if (!Number.isInteger(stockNumero)) {
+            setErrorFormulario('El stock debe ser un número entero mayor o igual a 0.');
+            return false;
+        }
+
+        return true;
     }
 
     // Envía los datos al componente padre
     function manejarEnvio(evento) {
         evento.preventDefault();
+
+        if (!validarFormulario()) {
+            return;
+        }
 
         onGuardar({
             nombre: formulario.nombre.trim(),
@@ -81,6 +113,8 @@ function ProductoForm({ producto, onGuardar, onCerrar }) {
                     </button>
                 </div>
 
+                {errorFormulario && <Mensaje tipo="error" texto={errorFormulario} />}
+
                 <form onSubmit={manejarEnvio}>
                     <div className="form-group">
                         <label htmlFor="nombre">Nombre del producto</label>
@@ -89,6 +123,7 @@ function ProductoForm({ producto, onGuardar, onCerrar }) {
                             id="nombre"
                             name="nombre"
                             placeholder="Nombre del producto"
+                            maxLength="150"
                             value={formulario.nombre}
                             onChange={manejarCambio}
                             required
@@ -102,6 +137,7 @@ function ProductoForm({ producto, onGuardar, onCerrar }) {
                             id="descripcion"
                             name="descripcion"
                             placeholder="Descripción del producto (opcional)"
+                            maxLength="255"
                             value={formulario.descripcion}
                             onChange={manejarCambio}
                         />
@@ -133,6 +169,7 @@ function ProductoForm({ producto, onGuardar, onCerrar }) {
                                 id="precio"
                                 name="precio"
                                 min="0"
+                                step="0.01"
                                 placeholder="25000"
                                 value={formulario.precio}
                                 onChange={manejarCambio}
@@ -147,6 +184,7 @@ function ProductoForm({ producto, onGuardar, onCerrar }) {
                                 id="stock"
                                 name="stock"
                                 min="0"
+                                step="1"
                                 placeholder="10"
                                 value={formulario.stock}
                                 onChange={manejarCambio}

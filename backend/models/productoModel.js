@@ -38,6 +38,18 @@ async function obtenerProductoPorId(idProducto) {
     return producto[0] || null;
 }
 
+// Comprueba si una categoría existe en la tabla categorias.
+async function existeCategoria(idCategoria) {
+    const [filas] = await database.query(
+        `SELECT COUNT(*) AS total
+        FROM categorias
+        WHERE id_categoria = ?`,
+        [idCategoria]
+    );
+
+    return filas[0].total > 0;
+}
+
 async function crearProducto(producto) {
     const { nombre, descripcion, precio, stock, idCategoria } = producto;
 
@@ -85,6 +97,7 @@ async function eliminarProducto(idProducto) {
 module.exports = {
     obtenerProductos,
     obtenerProductoPorId,
+    existeCategoria,
     crearProducto,
     actualizarProducto,
     eliminarProducto
