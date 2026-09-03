@@ -1,7 +1,16 @@
 // ===========================================
 // RESTAURANTE BALUARTE
 // MÓDULO PRODUCTOS
+// FLUJO: Formulario HTML -> POST -> Express ->
+// mysql2 -> respuesta JSON -> interfaz
 // ===========================================
+
+
+// ===========================================
+// CONFIGURACIÓN API
+// ===========================================
+
+const apiUrl = "http://localhost:3000/api/productos";
 
 
 // ===========================================
@@ -16,11 +25,15 @@ const formulario = document.querySelector("#modalProducto form");
 
 const buscador = document.querySelector(".busqueda input");
 
+const filtroCategoria = document.querySelector(".busqueda select");
+
 const btnNuevo = document.querySelector(".btn-red");
 
 const btnCerrar = document.querySelector(".cerrar");
 
 const btnCancelar = document.querySelector(".cancelar");
+
+const mensajeProducto = document.getElementById("mensajeProducto");
 
 const totalProductos = document.getElementById("totalProductos");
 
@@ -33,9 +46,9 @@ const totalBajoStock = document.getElementById("totalBajoStock");
 // CAMPOS DEL FORMULARIO
 // ===========================================
 
-const codigoInput = document.getElementById("codigo");
-
 const nombreInput = document.getElementById("nombre");
+
+const descripcionInput = document.getElementById("descripcion");
 
 const categoriaInput = document.getElementById("categoria");
 
@@ -52,75 +65,98 @@ const tituloModal = document.getElementById("tituloModal");
 
 let productos = [];
 
-let indiceEditar = null;
+let idProductoEditar = null;
 
 
 // ===========================================
-// CARGAR PRODUCTOS
+// MENSAJES DE ÉXITO / ERROR
 // ===========================================
 
-function cargarProductos() {
+function mostrarMensaje(texto, esError = false) {
 
-    const datos = localStorage.getItem("productos");
+    mensajeProducto.textContent = texto;
 
-    if (datos) {
+    mensajeProducto.classList.toggle("exito", !esError);
 
-        productos = JSON.parse(datos);
+    mensajeProducto.classList.toggle("error", esError);
 
-    } else {
+    mensajeProducto.hidden = false;
 
-        productos = [
+    setTimeout(() => {
 
-            {
-                codigo: "P001",
-                nombre: "Hamburguesa Especial",
-                categoria: "Comidas",
-                precio: 25000,
-                stock: 18
-            },
+        mensajeProducto.hidden = true;
 
-            {
-                codigo: "P002",
-                nombre: "Pizza Familiar",
-                categoria: "Comidas",
-                precio: 48000,
-                stock: 10
-            },
-
-            {
-                codigo: "P003",
-                nombre: "Lasaña",
-                categoria: "Comidas",
-                precio: 28000,
-                stock: 6
-            },
-
-            {
-                codigo: "P004",
-                nombre: "Perro Especial",
-                categoria: "Comidas",
-                precio: 18000,
-                stock: 20
-            }
-
-        ];
-
-        guardarProductos();
-    }
+    }, 5000);
 
 }
 
 
 // ===========================================
-// GUARDAR PRODUCTOS
+// SINCRONIZAR LOCALSTORAGE (COMPATIBILIDAD)
+// ===========================================
+// ventas.js, recetas.js y app.js (dashboard)
+// todavía leen la clave "productos"; por eso se
+// mantiene actualizada con el formato legado.
+
+function sincronizarLocalStorage() {
+
+    const productosLegado = productos.map(producto => ({
+
+        codigo: "P" + String(producto.id_producto).padStart(3, "0"),
+
+        nombre: producto.nombre,
+
+        categoria: producto.categoria,
+
+        precio: Number(producto.precio),
+
+        stock: Number(producto.stock)
+
+    }));
+
+    localStorage.setItem("productos", JSON.stringify(productosLegado));
+
+}
+
+
+// ===========================================
+// CARGAR PRODUCTOS (CONSULTA GET)
 // ===========================================
 
-function guardarProductos() {
+async function cargarProductos() {
 
-    localStorage.setItem(
-        "productos",
-        JSON.stringify(productos)
-    );
+    try {
+
+        const respuesta = await fetch(apiUrl);
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+
+            throw new Error(datos.mensaje || "Error al obtener los productos");
+
+        }
+
+        productos = datos;
+
+        sincronizarLocalStorage();
+
+        mostrarProductos();
+
+    } catch (error) {
+
+        console.error("Error al cargar productos:", error.message);
+
+        productos = [];
+
+        mostrarProductos();
+
+        mostrarMensaje(
+            "No se pudieron cargar los productos desde el servidor.",
+            true
+        );
+
+    }
 
 }
 
@@ -197,7 +233,30 @@ function actualizarResumen() {
 
 
 // ===========================================
-// MOSTRAR PRODUCTOS
+// FORMATO DE CÓDIGO Y PRECIO
+// ===========================================
+
+function obtenerCodigo(producto) {
+
+    if (producto.id_producto) {
+
+        return "P" + String(producto.id_producto).padStart(3, "0");
+
+    }
+
+    return producto.codigo || "--";
+
+}
+
+function formatearPrecio(precio) {
+
+    return "$" + Number(precio).toLocaleString("es-CO");
+
+}
+
+
+// ===========================================
+// MOSTRAR PRODUCTOS (RESPUESTA GET)
 // ===========================================
 
 function mostrarProductos(lista = productos) {
@@ -208,21 +267,17 @@ function mostrarProductos(lista = productos) {
 
     lista.forEach((producto) => {
 
-        // La lista puede estar filtrada; conservamos el índice del catálogo
-        // completo para que las acciones actúen sobre el producto correcto.
-        const indiceProducto = productos.indexOf(producto);
-
         tabla.innerHTML += `
 
             <tr>
 
-                <td>${producto.codigo}</td>
+                <td>${obtenerCodigo(producto)}</td>
 
                 <td>${producto.nombre}</td>
 
                 <td>${producto.categoria}</td>
 
-                <td>$${producto.precio.toLocaleString("es-CO")}</td>
+                <td>${formatearPrecio(producto.precio)}</td>
 
                 <td>${producto.stock}</td>
 
@@ -240,7 +295,7 @@ function mostrarProductos(lista = productos) {
 
                     <button
                         class="btn-icon editar"
-                        onclick="editarProducto(${indiceProducto})"
+                        onclick="editarProducto(${producto.id_producto})"
                         title="Editar">
 
                         <i class="fa-solid fa-pen"></i>
@@ -249,7 +304,7 @@ function mostrarProductos(lista = productos) {
 
                     <button
                         class="btn-icon eliminar"
-                        onclick="eliminarProducto(${indiceProducto})"
+                        onclick="eliminarProducto(${producto.id_producto})"
                         title="Eliminar">
 
                         <i class="fa-solid fa-trash"></i>
@@ -258,7 +313,7 @@ function mostrarProductos(lista = productos) {
 
                     <button
                         class="btn-icon ver"
-                        onclick="verProducto(${indiceProducto})"
+                        onclick="verProducto(${producto.id_producto})"
                         title="Ver">
 
                         <i class="fa-solid fa-eye"></i>
@@ -282,7 +337,7 @@ function mostrarProductos(lista = productos) {
 
 btnNuevo.addEventListener("click", () => {
 
-    indiceEditar = null;
+    idProductoEditar = null;
 
     tituloModal.textContent = "Nuevo Producto";
 
@@ -290,7 +345,7 @@ btnNuevo.addEventListener("click", () => {
 
     modal.style.display = "flex";
 
-    codigoInput.focus();
+    nombreInput.focus();
 
 });
 
@@ -305,7 +360,7 @@ function cerrarModal() {
 
     formulario.reset();
 
-    indiceEditar = null;
+    idProductoEditar = null;
 
 }
 
@@ -317,19 +372,20 @@ btnCancelar.addEventListener("click", cerrarModal);
 
 // ===========================================
 // GUARDAR / EDITAR PRODUCTO
+// Envío POST (nuevo) o PUT (editar) al backend
 // ===========================================
 
-formulario.addEventListener("submit", (e) => {
+formulario.addEventListener("submit", async (e) => {
 
     e.preventDefault();
 
     const producto = {
 
-        codigo: codigoInput.value.trim(),
-
         nombre: nombreInput.value.trim(),
 
-        categoria: categoriaInput.value,
+        descripcion: descripcionInput.value.trim(),
+
+        idCategoria: Number(categoriaInput.value),
 
         precio: Number(precioInput.value),
 
@@ -337,44 +393,65 @@ formulario.addEventListener("submit", (e) => {
 
     };
 
+    if (!producto.nombre) {
 
-    // EDITAR
+        mostrarMensaje("El nombre del producto es obligatorio.", true);
 
-    if (indiceEditar !== null) {
-
-        productos[indiceEditar] = producto;
-
-        alert("Producto actualizado correctamente.");
+        return;
 
     }
 
-    // NUEVO
+    if (!producto.idCategoria) {
 
-    else {
+        mostrarMensaje("Debe seleccionar una categoría.", true);
 
-        const existe = productos.some(
-            p => p.codigo.toLowerCase() === producto.codigo.toLowerCase()
-        );
+        return;
 
-        if (existe) {
+    }
 
-            alert("Ya existe un producto con ese código.");
+    try {
 
-            return;
+        const esNuevo = idProductoEditar === null;
+
+        const url = esNuevo ? apiUrl : `${apiUrl}/${idProductoEditar}`;
+
+        const metodo = esNuevo ? "POST" : "PUT";
+
+        const respuesta = await fetch(url, {
+
+            method: metodo,
+
+            headers: { "Content-Type": "application/json" },
+
+            body: JSON.stringify(producto)
+
+        });
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+
+            throw new Error(datos.mensaje || "Error al guardar el producto");
+
         }
 
-        productos.push(producto);
+        mostrarMensaje(
+            esNuevo
+                ? "Producto creado correctamente."
+                : "Producto actualizado correctamente."
+        );
 
-        alert("Producto agregado correctamente.");
+        cerrarModal();
+
+        await cargarProductos();
+
+    } catch (error) {
+
+        console.error("Error al guardar producto:", error.message);
+
+        mostrarMensaje(error.message, true);
 
     }
-
-
-    guardarProductos();
-
-    mostrarProductos();
-
-    cerrarModal();
 
 });
 
@@ -383,19 +460,25 @@ formulario.addEventListener("submit", (e) => {
 // EDITAR PRODUCTO
 // ===========================================
 
-function editarProducto(index) {
+function editarProducto(id) {
 
-    const producto = productos[index];
+    const producto = productos.find(p => p.id_producto === id);
 
-    indiceEditar = index;
+    if (!producto) {
+
+        return;
+
+    }
+
+    idProductoEditar = id;
 
     tituloModal.textContent = "Editar Producto";
 
-    codigoInput.value = producto.codigo;
-
     nombreInput.value = producto.nombre;
 
-    categoriaInput.value = producto.categoria;
+    descripcionInput.value = producto.descripcion || "";
+
+    categoriaInput.value = producto.id_categoria;
 
     precioInput.value = producto.precio;
 
@@ -409,12 +492,18 @@ function editarProducto(index) {
 
 
 // ===========================================
-// ELIMINAR PRODUCTO
+// ELIMINAR PRODUCTO (DELETE)
 // ===========================================
 
-function eliminarProducto(index) {
+async function eliminarProducto(id) {
 
-    const producto = productos[index];
+    const producto = productos.find(p => p.id_producto === id);
+
+    if (!producto) {
+
+        return;
+
+    }
 
     const confirmar = confirm(
         `¿Está seguro de eliminar "${producto.nombre}"?`
@@ -426,13 +515,33 @@ function eliminarProducto(index) {
 
     }
 
-    productos.splice(index, 1);
+    try {
 
-    guardarProductos();
+        const respuesta = await fetch(`${apiUrl}/${id}`, {
 
-    mostrarProductos();
+            method: "DELETE"
 
-    alert("Producto eliminado correctamente.");
+        });
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+
+            throw new Error(datos.mensaje || "Error al eliminar el producto");
+
+        }
+
+        mostrarMensaje("Producto eliminado correctamente.");
+
+        await cargarProductos();
+
+    } catch (error) {
+
+        console.error("Error al eliminar producto:", error.message);
+
+        mostrarMensaje(error.message, true);
+
+    }
 
 }
 
@@ -441,21 +550,33 @@ function eliminarProducto(index) {
 // VER PRODUCTO
 // ===========================================
 
-function verProducto(index) {
+function verProducto(id) {
 
-    const producto = productos[index];
+    const producto = productos.find(p => p.id_producto === id);
+
+    if (!producto) {
+
+        return;
+
+    }
+
+    const descripcion = producto.descripcion
+        ? "Descripción: " + producto.descripcion + "\n"
+        : "";
 
     alert(
 
         "INFORMACIÓN DEL PRODUCTO\n\n" +
 
-        "Código: " + producto.codigo + "\n" +
+        "Código: " + obtenerCodigo(producto) + "\n" +
 
         "Producto: " + producto.nombre + "\n" +
 
+        descripcion +
+
         "Categoría: " + producto.categoria + "\n" +
 
-        "Precio: $" + producto.precio.toLocaleString("es-CO") + "\n" +
+        "Precio: " + formatearPrecio(producto.precio) + "\n" +
 
         "Stock: " + producto.stock + "\n" +
 
@@ -467,28 +588,48 @@ function verProducto(index) {
 
 
 // ===========================================
-// BUSCADOR
+// BUSCADOR Y FILTRO POR CATEGORÍA
 // ===========================================
 
 if (buscador) {
 
-    buscador.addEventListener("input", () => {
+    buscador.addEventListener("input", filtrarProductos);
 
-        const texto = buscador.value.toLowerCase();
+}
 
-        const filtrados = productos.filter(producto =>
+if (filtroCategoria) {
+
+    filtroCategoria.addEventListener("change", filtrarProductos);
+
+}
+
+function filtrarProductos() {
+
+    const texto = buscador.value.toLowerCase();
+
+    const categoria = filtroCategoria.value;
+
+    const filtrados = productos.filter(producto => {
+
+        const coincideTexto =
 
             producto.nombre.toLowerCase().includes(texto) ||
 
-            producto.codigo.toLowerCase().includes(texto) ||
+            obtenerCodigo(producto).toLowerCase().includes(texto) ||
 
-            producto.categoria.toLowerCase().includes(texto)
+            producto.categoria.toLowerCase().includes(texto);
 
-        );
+        const coincideCategoria =
 
-        mostrarProductos(filtrados);
+            categoria === "Todas las categorías" ||
+
+            producto.categoria === categoria;
+
+        return coincideTexto && coincideCategoria;
 
     });
+
+    mostrarProductos(filtrados);
 
 }
 
@@ -513,8 +654,6 @@ window.addEventListener("click", (e) => {
 // ===========================================
 
 cargarProductos();
-
-mostrarProductos();
 
 console.log("Módulo Productos iniciado");
 
