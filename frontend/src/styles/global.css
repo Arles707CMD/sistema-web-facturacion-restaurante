@@ -1,0 +1,31 @@
+/* ===========================================
+   ESTILOS GLOBALES DEL FRONTEND REACT
+   Restaurante Baluarte
+   =========================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', Roboto, sans-serif;
+    background: #f5f6fa;
+    color: #333333;
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: 'Consolas', 'Menlo', monospace;
+    background: #f4f3ec;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
