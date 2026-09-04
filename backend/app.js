@@ -11,6 +11,8 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const configuracionRoutes = require('./routes/configuracionRoutes');
 const recetaRoutes = require('./routes/recetaRoutes');
 const metaRoutes = require('./routes/metaRoutes');
+const reporteRoutes = require('./routes/reporteRoutes');
+const inventarioRoutes = require('./routes/inventarioRoutes');
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/configuracion', configuracionRoutes);
 app.use('/api/recetas', recetaRoutes);
 app.use('/api/metas', metaRoutes);
+app.use('/api/reportes', reporteRoutes);
+app.use('/api/inventario', inventarioRoutes);
 
 app.get('/', (req, res) => {
     res.json({

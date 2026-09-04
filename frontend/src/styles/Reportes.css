@@ -1,0 +1,10 @@
+/* ===========================================
+   ESTILOS DEL MÓDULO REPORTES
+   Restaurante Baluarte
+   =========================================== */
+
+.reportes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}

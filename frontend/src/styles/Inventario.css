@@ -1,0 +1,10 @@
+/* ===========================================
+   ESTILOS DEL MÓDULO INVENTARIO
+   Restaurante Baluarte
+   =========================================== */
+
+.inventario-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
