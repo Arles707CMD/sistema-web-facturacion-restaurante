@@ -60,3 +60,69 @@ INSERT INTO productos (id_producto, nombre, descripcion, precio, stock, id_categ
 (2, 'Hamburguesa Clasica', 'Hamburguesa tradicional', 15000.00, 15, 1),
 (3, 'Gaseosa', 'Bebida gaseosa personal', 5000.00, 30, 2),
 (4, 'Papas Fritas', 'Porcion de papas fritas', 7000.00, 25, 3);
+-- ============================================================
+-- TABLA: usuarios
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id_usuario INT(11) NOT NULL AUTO_INCREMENT,
+    nombre VARCHAR(150) NOT NULL,
+    correo VARCHAR(150) NOT NULL,
+    contrasena_hash VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL DEFAULT 'Ventas',
+    estado VARCHAR(20) NOT NULL DEFAULT 'Activo',
+    fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_usuario),
+    UNIQUE KEY uq_usuarios_correo (correo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- DATOS INICIALES: usuarios
+-- Contraseña por defecto: 123456 (almacenada como hash scrypt)
+-- ============================================================
+
+INSERT INTO usuarios (nombre, correo, contrasena_hash, rol, estado) VALUES
+('Juan David López', 'juan@baluarte.com', '3a105e13d11b580156dd19816bd6569d:754faacbef12c911ab062e7b89f6a153a658e7d21f20d8ac84d9af69764470793e33ab3b5e1383623eeef1d11f698e93822df51f43eed2288049016393993e86', 'Administrador', 'Activo'),
+('María González', 'maria@baluarte.com', '3a105e13d11b580156dd19816bd6569d:754faacbef12c911ab062e7b89f6a153a658e7d21f20d8ac84d9af69764470793e33ab3b5e1383623eeef1d11f698e93822df51f43eed2288049016393993e86', 'Ventas', 'Activo'),
+('Carlos Rodríguez', 'carlos@baluarte.com', '3a105e13d11b580156dd19816bd6569d:754faacbef12c911ab062e7b89f6a153a658e7d21f20d8ac84d9af69764470793e33ab3b5e1383623eeef1d11f698e93822df51f43eed2288049016393993e86', 'Inventario', 'Inactivo');
+
+-- ============================================================
+-- TABLA: facturas
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS facturas (
+    id_factura INT(11) NOT NULL AUTO_INCREMENT,
+    numero_factura VARCHAR(20) NOT NULL,
+    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    cliente VARCHAR(150) NOT NULL,
+    documento VARCHAR(50) DEFAULT NULL,
+    telefono VARCHAR(20) DEFAULT NULL,
+    metodo_pago VARCHAR(50) NOT NULL,
+    observaciones VARCHAR(255) DEFAULT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    iva DECIMAL(10, 2) NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (id_factura),
+    UNIQUE KEY uq_facturas_numero (numero_factura),
+    KEY idx_facturas_fecha (fecha)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLA: detalle_factura
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS detalle_factura (
+    id_detalle INT(11) NOT NULL AUTO_INCREMENT,
+    id_factura INT(11) NOT NULL,
+    id_producto INT(11) NOT NULL,
+    cantidad INT(11) NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (id_detalle),
+    KEY idx_detalle_factura (id_factura),
+    KEY idx_detalle_producto (id_producto),
+    CONSTRAINT fk_detalle_factura FOREIGN KEY (id_factura)
+        REFERENCES facturas (id_factura)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_detalle_producto FOREIGN KEY (id_producto)
+        REFERENCES productos (id_producto)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

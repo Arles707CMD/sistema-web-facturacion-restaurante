@@ -4,6 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const database = require('./config/database');
 const productoRoutes = require('./routes/productoRoutes');
+const usuarioRoutes = require('./routes/usuarioRoutes');
+const ventaRoutes = require('./routes/ventaRoutes');
+const facturaRoutes = require('./routes/facturaRoutes');
 
 const app = express();
 
@@ -11,6 +14,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/productos', productoRoutes);
+app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/ventas', ventaRoutes);
+app.use('/api/facturas', facturaRoutes);
 
 app.get('/', (req, res) => {
     res.json({
