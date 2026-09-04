@@ -1,0 +1,59 @@
+/* ===========================================
+   ESTILOS DE LAYOUT Y COMPONENTES COMUNES
+   =========================================== */
+
+/* El NavLink activo se resalta con el color
+   principal del Restaurante Baluarte. */
+.sidebar a.active {
+    background: #e53935;
+    box-shadow: 0 10px 25px rgba(229, 57, 53, 0.45);
+}
+
+/* El botón de retorno (btn-back) se usa como
+   <button> en Topbar; se normaliza su apariencia. */
+.btn-back {
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+}
+
+/* ===========================================
+   PÁGINA PLACEHOLDER
+   =========================================== */
+
+.placeholder {
+    text-align: center;
+    padding: 60px 30px;
+}
+
+.placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.placeholder-content > i {
+    font-size: 48px;
+    color: #e53935;
+}
+
+.placeholder-content h2 {
+    font-size: 24px;
+    color: #111827;
+}
+
+.placeholder-content p {
+    color: #6b7280;
+    max-width: 460px;
+}
+
+.placeholder-badge {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+}

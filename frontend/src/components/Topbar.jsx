@@ -1,23 +1,33 @@
 // ===========================================
 // COMPONENTE TOPBAR
-// Encabezado superior del módulo Productos con
-// el título y una acción de retorno al dashboard.
+// Encabezado superior reutilizable. Recibe el
+// número, título y subtítulo del módulo y usa
+// useNavigate para la navegación programática
+// del botón de retorno.
 // ===========================================
 
-function Topbar() {
+import { useNavigate } from 'react-router-dom';
+
+function Topbar({ numero, titulo, subtitulo, rutaVolver }) {
+    const navigate = useNavigate();
+
     return (
         <header className="topbar">
             <div className="title-box">
-                <span className="number">05</span>
+                <span className="number">{numero}</span>
                 <div>
-                    <h1>Productos</h1>
-                    <p>Administración de productos del restaurante</p>
+                    <h1>{titulo}</h1>
+                    <p>{subtitulo}</p>
                 </div>
             </div>
-            <a href="#" onClick={(e) => e.preventDefault()} className="btn-back">
+            <button
+                type="button"
+                className="btn-back"
+                onClick={() => navigate(rutaVolver)}
+            >
                 <i className="fa-solid fa-arrow-left"></i>
                 Dashboard
-            </a>
+            </button>
         </header>
     );
 }
