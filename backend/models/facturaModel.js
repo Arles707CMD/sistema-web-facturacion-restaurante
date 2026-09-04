@@ -8,8 +8,17 @@ const database = require('../config/database');
 // transaccionales.
 // ===========================================
 
-// Porcentaje de IVA aplicado a las ventas.
-const IVA = 0.19;
+// Obtiene el porcentaje de IVA desde la configuración (id = 1).
+// Si no existe, utiliza 19 como fallback.
+async function obtenerIva(connection) {
+    const [[configuracion]] = await connection.query(`
+        SELECT iva
+        FROM configuracion
+        WHERE id = 1
+    `);
+
+    return configuracion ? Number(configuracion.iva) : 19;
+}
 
 // ===========================================
 // LECTURA
@@ -146,7 +155,9 @@ async function crearVenta(datosVenta) {
             subtotal += precio * item.cantidad;
         }
 
-        const iva = subtotal * IVA;
+        // Obtiene el IVA dinámico desde configuración (fallback 19%).
+        const ivaPorcentaje = await obtenerIva(connection);
+        const iva = subtotal * (ivaPorcentaje / 100);
         const total = subtotal + iva;
 
         const numeroFactura = await generarNumeroFactura(connection);

@@ -126,3 +126,43 @@ CREATE TABLE IF NOT EXISTS detalle_factura (
     CONSTRAINT fk_detalle_producto FOREIGN KEY (id_producto)
         REFERENCES productos (id_producto)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLA: recetas
+-- Una receta por producto (id_producto UNIQUE).
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS recetas (
+    id_receta INT(11) NOT NULL AUTO_INCREMENT,
+    id_producto INT(11) NOT NULL,
+    porciones INT(11) NOT NULL,
+    tiempo INT(11) NOT NULL,
+    estado VARCHAR(20) NOT NULL,
+    descripcion VARCHAR(255) DEFAULT NULL,
+    fecha_actualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_receta),
+    UNIQUE KEY uq_recetas_producto (id_producto),
+    CONSTRAINT fk_recetas_producto FOREIGN KEY (id_producto)
+        REFERENCES productos (id_producto)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLA: configuracion
+-- Fila única de configuración (id = 1).
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS configuracion (
+    id INT(11) NOT NULL,
+    nombre VARCHAR(150) NOT NULL,
+    meta_mensual DECIMAL(12, 2) NOT NULL,
+    iva DECIMAL(5, 2) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- DATOS INICIALES: configuracion
+-- ============================================================
+
+INSERT INTO configuracion (id, nombre, meta_mensual, iva) VALUES
+(1, 'Restaurante Baluarte', 50000000, 19)
+ON DUPLICATE KEY UPDATE id = id;

@@ -1,0 +1,12 @@
+/* ===========================================
+   ESTILOS DEL MÓDULO CONFIGURACIÓN
+   Restaurante Baluarte
+   =========================================== */
+
+.configuracion-form {
+    max-width: 560px;
+}
+
+.configuracion-form .btn-red {
+    margin-top: 10px;
+}

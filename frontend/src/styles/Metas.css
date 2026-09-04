@@ -1,0 +1,123 @@
+/* ===========================================
+   ESTILOS DEL MÓDULO METAS
+   Restaurante Baluarte
+   =========================================== */
+
+/* Selector de periodo */
+.periodo-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.periodo-buttons button {
+    padding: 10px 18px;
+    border: 1px solid #dddddd;
+    background: #ffffff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #333333;
+    transition: 0.25s;
+}
+
+.periodo-buttons button.activo {
+    background: #e53935;
+    color: #ffffff;
+    border-color: #e53935;
+}
+
+/* Panel de progreso */
+.metas-progreso {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.metas-porcentaje h2 {
+    font-size: 40px;
+    color: #111827;
+    margin: 0 0 4px;
+}
+
+.metas-porcentaje span {
+    color: #777777;
+    font-size: 13px;
+}
+
+.metas-barra {
+    height: 14px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0;
+}
+
+.metas-barra span {
+    display: block;
+    height: 100%;
+    background: #e53935;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+.metas-valores p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+}
+
+.metas-valores strong {
+    color: #e53935;
+    font-size: 18px;
+}
+
+.metas-valores span {
+    color: #777777;
+    font-size: 13px;
+}
+
+/* Ranking de productos */
+.ranking-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ranking-lista li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #f9fafb;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #333333;
+}
+
+.ranking-lista .puesto {
+    width: 28px;
+    height: 28px;
+    background: #e53935;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.ranking-lista strong {
+    margin-left: auto;
+    color: #111827;
+}

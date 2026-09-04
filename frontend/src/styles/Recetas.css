@@ -1,0 +1,45 @@
+/* ===========================================
+   ESTILOS DEL MÓDULO RECETAS
+   Restaurante Baluarte
+   =========================================== */
+
+/* Badges de estado de la receta */
+.estado-receta {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.estado-receta.activa {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.estado-receta.revision {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.estado-receta.inactiva {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Detalle de la receta dentro del modal */
+.receta-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.receta-detalle p {
+    font-size: 14px;
+    color: #333333;
+    margin: 0;
+}
+
+.receta-detalle strong {
+    color: #111827;
+}
