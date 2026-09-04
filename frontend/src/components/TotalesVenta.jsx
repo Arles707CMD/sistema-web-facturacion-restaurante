@@ -15,7 +15,7 @@ function TotalesVenta({ subtotal, iva, total }) {
                 <strong>{formatear(subtotal)}</strong>
             </p>
             <p>
-                <span>IVA (19%):</span>
+                <span>IVA:</span>
                 <strong>{formatear(iva)}</strong>
             </p>
             <p className="total">

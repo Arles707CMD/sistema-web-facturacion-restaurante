@@ -3,18 +3,6 @@
    Restaurante Baluarte
    =========================================== */
 
-/* Estado del usuario: Activo (verde) */
-.estado.activo {
-    background: #dcfce7;
-    color: #16a34a;
-}
-
-/* Estado del usuario: Inactivo (rojo) */
-.estado.inactivo {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
 /* Detalle del usuario dentro del modal */
 .usuario-detalle {
     display: flex;
@@ -24,9 +12,9 @@
 
 .usuario-detalle p {
     font-size: 14px;
-    color: #333333;
+    color: var(--color-text);
 }
 
 .usuario-detalle strong {
-    color: #111827;
+    color: var(--color-text);
 }

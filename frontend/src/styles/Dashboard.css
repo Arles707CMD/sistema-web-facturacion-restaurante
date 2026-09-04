@@ -9,11 +9,6 @@
     gap: 20px;
 }
 
-/* Color azul para la tarjeta de Facturas */
-.icon.blue {
-    background: #2563eb;
-}
-
 /* ===========================================
    GRÁFICO DE VENTAS
    =========================================== */
@@ -36,17 +31,6 @@
 }
 
 /* ===========================================
-   ESTADOS VACÍOS
-   =========================================== */
-
-.sin-datos {
-    text-align: center;
-    color: #777777;
-    padding: 24px;
-    font-size: 14px;
-}
-
-/* ===========================================
    ACTIVIDAD RECIENTE
    =========================================== */
 
@@ -66,23 +50,23 @@
     gap: 8px 14px;
     padding: 12px 14px;
     background: #f9fafb;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     font-size: 14px;
-    color: #333333;
+    color: var(--color-text);
 }
 
 .actividad-item strong {
-    color: #111827;
+    color: var(--color-text);
 }
 
 .actividad-fecha {
-    color: #6b7280;
+    color: var(--color-text-muted);
     margin-left: auto;
 }
 
 .actividad-total {
     font-weight: 700;
-    color: #e53935;
+    color: var(--color-primary);
 }
 
 /* ===========================================

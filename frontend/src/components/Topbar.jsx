@@ -14,11 +14,8 @@ function Topbar({ numero, titulo, subtitulo, rutaVolver }) {
     return (
         <header className="topbar">
             <div className="title-box">
-                <span className="number">{numero}</span>
-                <div>
-                    <h1>{titulo}</h1>
-                    <p>{subtitulo}</p>
-                </div>
+                <h1>{titulo}</h1>
+                <p>{subtitulo}</p>
             </div>
             <button
                 type="button"

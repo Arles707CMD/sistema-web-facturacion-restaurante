@@ -1,21 +1,185 @@
 /* ===========================================
-   ESTILOS DE LAYOUT Y COMPONENTES COMUNES
+   ESTILOS DE LAYOUT
+   Contenedor, sidebar, topbar y content.
    =========================================== */
 
-/* El NavLink activo se resalta con el color
-   principal del Restaurante Baluarte. */
-.sidebar a.active {
-    background: #e53935;
-    box-shadow: 0 10px 25px rgba(229, 57, 53, 0.45);
+/* ===========================================
+   CONTENEDOR
+   =========================================== */
+
+.container {
+    display: flex;
+    min-height: 100vh;
 }
 
-/* El botón de retorno (btn-back) se usa como
-   <button> en Topbar; se normaliza su apariencia. */
+.content {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ===========================================
+   SIDEBAR
+   =========================================== */
+
+.sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0b1526 0%, #111827 100%);
+    display: flex;
+    flex-direction: column;
+    color: #ffffff;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 18px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logo img {
+    width: 220px;
+    max-width: 100%;
+}
+
+.sidebar nav {
+    flex: 1;
+    padding: 12px 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 3px 14px;
+}
+
+.sidebar a {
+    color: #cbd5e1;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 16px;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition), color var(--transition);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.sidebar a:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+.sidebar a.active {
+    background: var(--color-primary);
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35);
+}
+
+.sidebar i {
+    width: 20px;
+    font-size: 17px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   CAJA DE USUARIO (SIDEBAR)
+   =========================================== */
+
+.user-box {
+    margin: 14px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.user-box h3 {
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.user-box span {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* ===========================================
+   TOPBAR
+   =========================================== */
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.title-box h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 2px;
+}
+
+.title-box p {
+    color: var(--color-text-muted);
+    font-size: 14px;
+}
+
 .btn-back {
-    border: none;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--border-color);
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-size: 15px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background var(--transition), color var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-back:hover {
+    background: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
 }
 
 /* ===========================================
@@ -36,24 +200,94 @@
 
 .placeholder-content > i {
     font-size: 48px;
-    color: #e53935;
+    color: var(--color-primary);
 }
 
 .placeholder-content h2 {
     font-size: 24px;
-    color: #111827;
+    color: var(--color-text);
 }
 
 .placeholder-content p {
-    color: #6b7280;
+    color: var(--color-text-muted);
     max-width: 460px;
 }
 
 .placeholder-badge {
     background: #f3f4f6;
-    color: #6b7280;
+    color: var(--color-text-muted);
     padding: 6px 14px;
     border-radius: 999px;
     font-size: 13px;
     font-weight: 600;
+}
+
+/* ===========================================
+   RESPONSIVE DEL LAYOUT
+   =========================================== */
+
+@media (max-width: 992px) {
+    .sidebar {
+        width: 74px;
+    }
+
+    .logo img {
+        width: 50px;
+    }
+
+    .sidebar a {
+        justify-content: center;
+        padding: 13px;
+        font-size: 0;
+        gap: 0;
+    }
+
+    .sidebar a i {
+        font-size: 20px;
+        width: auto;
+    }
+
+    .user-box {
+        justify-content: center;
+        padding: 12px 10px;
+    }
+
+    .user-box div:last-child {
+        display: none;
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content {
+        padding: var(--space-lg);
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: var(--space-md);
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .busqueda {
+        flex-direction: column;
+    }
+
+    .busqueda select {
+        width: 100%;
+    }
+
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }

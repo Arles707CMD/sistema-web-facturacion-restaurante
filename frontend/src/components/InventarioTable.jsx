@@ -4,24 +4,33 @@
 // precio, stock y estado visual.
 // ===========================================
 
+import EmptyState from './common/EmptyState';
+import Badge from './common/Badge';
+
 function formatearMoneda(valor) {
     return '$' + Number(valor).toLocaleString('es-CO');
 }
 
-// Determina el estado y su clase visual según el stock.
+// Determina el estado y su variante visual según el stock.
 function obtenerEstado(stock) {
     if (stock <= 0) {
-        return { texto: 'Agotado', clase: 'agotado' };
+        return { texto: 'Agotado', variante: 'danger' };
     }
     if (stock <= 10) {
-        return { texto: 'Bajo stock', clase: 'bajo' };
+        return { texto: 'Bajo stock', variante: 'warning' };
     }
-    return { texto: 'Disponible', clase: 'disponible' };
+    return { texto: 'Disponible', variante: 'success' };
 }
 
 function InventarioTable({ productos }) {
     if (productos.length === 0) {
-        return <p className="sin-datos">No hay productos en el inventario.</p>;
+        return (
+            <EmptyState
+                icono="fa-box-open"
+                titulo="Sin productos"
+                mensaje="No hay productos en el inventario."
+            />
+        );
     }
 
     return (
@@ -47,9 +56,7 @@ function InventarioTable({ productos }) {
                                 <td>{formatearMoneda(producto.precio)}</td>
                                 <td>{producto.stock}</td>
                                 <td>
-                                    <span className={`estado ${estado.clase}`}>
-                                        {estado.texto}
-                                    </span>
+                                    <Badge variante={estado.variante}>{estado.texto}</Badge>
                                 </td>
                             </tr>
                         );

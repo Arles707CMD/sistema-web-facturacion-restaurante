@@ -4,6 +4,9 @@
 // documento, método, total, estado y acciones.
 // ===========================================
 
+import EmptyState from './common/EmptyState';
+import Badge from './common/Badge';
+
 function formatearPrecio(precio) {
     return '$' + Number(precio).toLocaleString('es-CO');
 }
@@ -14,7 +17,13 @@ function formatearFecha(fecha) {
 
 function FacturaTable({ facturas, onVer, onEliminar }) {
     if (facturas.length === 0) {
-        return <p className="sin-facturas">No hay facturas registradas.</p>;
+        return (
+            <EmptyState
+                icono="fa-file-invoice"
+                titulo="Sin facturas"
+                mensaje="Aún no hay facturas registradas."
+            />
+        );
     }
 
     return (
@@ -42,7 +51,7 @@ function FacturaTable({ facturas, onVer, onEliminar }) {
                             <td>{factura.metodo_pago}</td>
                             <td>{formatearPrecio(factura.total)}</td>
                             <td>
-                                <span className="estado pagada">Pagada</span>
+                                <Badge variante="success">Pagada</Badge>
                             </td>
                             <td>
                                 <button

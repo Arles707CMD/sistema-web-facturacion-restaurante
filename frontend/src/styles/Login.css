@@ -7,53 +7,93 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #08111d 0%, #111827 100%);
+    background: linear-gradient(135deg, #0b1526 0%, #111827 100%);
     padding: 24px;
 }
 
 .login-card {
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 40px;
-    width: 420px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 900px;
     max-width: 100%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-    text-align: center;
+    overflow: hidden;
 }
 
-.login-logo {
-    width: 220px;
-    max-width: 100%;
-    margin-bottom: 20px;
+/* ===========================================
+   PANEL DE MARCA (izquierda)
+   =========================================== */
+
+.login-brand {
+    background: linear-gradient(160deg, var(--color-primary) 0%, #7f1d1d 100%);
+    color: #ffffff;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
 }
 
-.login-card h1 {
+.login-brand .login-logo {
+    width: 180px;
+    max-width: 100%;
+}
+
+.login-brand h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.login-brand p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+}
+
+.login-brand-footer {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.75);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* ===========================================
+   PANEL DE FORMULARIO (derecha)
+   =========================================== */
+
+.login-panel {
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-panel h2 {
     font-size: 22px;
-    color: #111827;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
-.login-card > p {
-    color: #6b7280;
+.login-subtitle {
+    color: var(--color-text-muted);
     font-size: 14px;
     margin-bottom: 24px;
 }
 
-.login-form {
-    text-align: left;
-}
-
-.login-form .btn-red {
+.login-btn {
     width: 100%;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
 .login-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-    border-radius: 10px;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
     padding: 12px 14px;
     font-size: 14px;
     font-weight: 600;
@@ -63,5 +103,24 @@
 .login-nota {
     margin-top: 16px;
     font-size: 12px;
-    color: #999999;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+
+@media (max-width: 768px) {
+    .login-card {
+        grid-template-columns: 1fr;
+    }
+
+    .login-brand {
+        display: none;
+    }
+
+    .login-panel {
+        padding: 32px 24px;
+    }
 }

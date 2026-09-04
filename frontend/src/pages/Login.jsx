@@ -36,49 +36,60 @@ function Login() {
     return (
         <div className="login-shell">
             <div className="login-card">
-                <img src={logo} alt="Restaurante Baluarte" className="login-logo" />
-                <h1>Iniciar Sesión</h1>
-                <p>Accede al sistema de gestión del restaurante</p>
-
-                <form className="login-form" onSubmit={manejarEnvio}>
-                    <div className="form-group">
-                        <label htmlFor="usuario">Usuario</label>
-                        <input
-                            type="text"
-                            id="usuario"
-                            name="usuario"
-                            placeholder="admin"
-                            value={usuario}
-                            onChange={(evento) => setUsuario(evento.target.value)}
-                            required
-                        />
+                <aside className="login-brand">
+                    <img src={logo} alt="Restaurante Baluarte" className="login-logo" />
+                    <h1>Restaurante Baluarte</h1>
+                    <p>Sistema de administración y gestión para tu restaurante.</p>
+                    <div className="login-brand-footer">
+                        <i className="fa-solid fa-utensils"></i>
+                        Productos, ventas, facturas, inventario y reportes.
                     </div>
+                </aside>
 
-                    <div className="form-group">
-                        <label htmlFor="contrasena">Contraseña</label>
-                        <input
-                            type="password"
-                            id="contrasena"
-                            name="contrasena"
-                            placeholder="123456"
-                            value={contrasena}
-                            onChange={(evento) => setContrasena(evento.target.value)}
-                            required
-                        />
-                    </div>
+                <section className="login-panel">
+                    <h2>Iniciar Sesión</h2>
+                    <p className="login-subtitle">Accede con tus credenciales</p>
 
-                    {error && <p className="login-error">{error}</p>}
+                    <form className="login-form" onSubmit={manejarEnvio}>
+                        <div className="form-group">
+                            <label htmlFor="usuario">Usuario</label>
+                            <input
+                                type="text"
+                                id="usuario"
+                                name="usuario"
+                                placeholder="admin"
+                                value={usuario}
+                                onChange={(evento) => setUsuario(evento.target.value)}
+                                required
+                            />
+                        </div>
 
-                    <button type="submit" className="btn-red">
-                        <i className="fa-solid fa-right-to-bracket"></i>
-                        Entrar
-                    </button>
-                </form>
+                        <div className="form-group">
+                            <label htmlFor="contrasena">Contraseña</label>
+                            <input
+                                type="password"
+                                id="contrasena"
+                                name="contrasena"
+                                placeholder="123456"
+                                value={contrasena}
+                                onChange={(evento) => setContrasena(evento.target.value)}
+                                required
+                            />
+                        </div>
 
-                <p className="login-nota">
-                    Prototipo de demostración: usuario <strong>admin</strong> / contraseña{' '}
-                    <strong>123456</strong>.
-                </p>
+                        {error && <p className="login-error">{error}</p>}
+
+                        <button type="submit" className="btn-red login-btn">
+                            <i className="fa-solid fa-right-to-bracket"></i>
+                            Entrar
+                        </button>
+                    </form>
+
+                    <p className="login-nota">
+                        Prototipo de demostración: usuario <strong>admin</strong> / contraseña{' '}
+                        <strong>123456</strong>.
+                    </p>
+                </section>
             </div>
         </div>
     );

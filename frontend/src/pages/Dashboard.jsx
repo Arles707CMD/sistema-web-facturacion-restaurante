@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react';
 
 import Mensaje from '../components/Mensaje';
+import Loading from '../components/common/Loading';
 import DashboardCards from '../components/DashboardCards';
 import GraficoVentas from '../components/GraficoVentas';
 import ProductosMasVendidos from '../components/ProductosMasVendidos';
@@ -44,12 +45,7 @@ function Dashboard() {
     }
 
     if (cargando) {
-        return (
-            <p className="estado-carga">
-                <i className="fa-solid fa-spinner fa-spin"></i>
-                Cargando dashboard...
-            </p>
-        );
+        return <Loading texto="Cargando dashboard..." />;
     }
 
     if (error) {

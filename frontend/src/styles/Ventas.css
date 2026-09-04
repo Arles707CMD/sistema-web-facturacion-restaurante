@@ -87,12 +87,6 @@
    CARRITO
    =========================================== */
 
-.carrito-vacio {
-    color: #777777;
-    text-align: center;
-    padding: 20px;
-}
-
 .cantidad-control {
     display: flex;
     align-items: center;

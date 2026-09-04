@@ -3,19 +3,6 @@
    Restaurante Baluarte
    =========================================== */
 
-/* Estado de la factura: Pagada (verde) */
-.estado.pagada {
-    background: #dcfce7;
-    color: #16a34a;
-}
-
-/* Mensaje cuando no hay facturas */
-.sin-facturas {
-    text-align: center;
-    color: #777777;
-    padding: 30px;
-}
-
 /* ===========================================
    DETALLE DE LA FACTURA
    =========================================== */
@@ -31,16 +18,16 @@
     flex-direction: column;
     gap: 6px;
     background: #f9fafb;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     padding: 14px;
 }
 
 .factura-cabecera p {
     font-size: 14px;
-    color: #333333;
+    color: var(--color-text);
     margin: 0;
 }
 
 .factura-cabecera strong {
-    color: #111827;
+    color: var(--color-text);
 }
