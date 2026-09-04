@@ -7,6 +7,7 @@ const productoRoutes = require('./routes/productoRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const ventaRoutes = require('./routes/ventaRoutes');
 const facturaRoutes = require('./routes/facturaRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use('/api/productos', productoRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/ventas', ventaRoutes);
 app.use('/api/facturas', facturaRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/', (req, res) => {
     res.json({

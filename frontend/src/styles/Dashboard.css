@@ -1,0 +1,96 @@
+/* ===========================================
+   ESTILOS DEL DASHBOARD
+   Restaurante Baluarte
+   =========================================== */
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Color azul para la tarjeta de Facturas */
+.icon.blue {
+    background: #2563eb;
+}
+
+/* ===========================================
+   GRÁFICO DE VENTAS
+   =========================================== */
+
+.grafico-contenedor {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
+
+/* ===========================================
+   COLUMNAS INFERIORES
+   =========================================== */
+
+.dashboard-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+/* ===========================================
+   ESTADOS VACÍOS
+   =========================================== */
+
+.sin-datos {
+    text-align: center;
+    color: #777777;
+    padding: 24px;
+    font-size: 14px;
+}
+
+/* ===========================================
+   ACTIVIDAD RECIENTE
+   =========================================== */
+
+.actividad-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.actividad-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    padding: 12px 14px;
+    background: #f9fafb;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #333333;
+}
+
+.actividad-item strong {
+    color: #111827;
+}
+
+.actividad-fecha {
+    color: #6b7280;
+    margin-left: auto;
+}
+
+.actividad-total {
+    font-weight: 700;
+    color: #e53935;
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+
+@media (max-width: 992px) {
+    .dashboard-columnas {
+        grid-template-columns: 1fr;
+    }
+}
