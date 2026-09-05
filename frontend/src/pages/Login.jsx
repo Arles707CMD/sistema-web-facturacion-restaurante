@@ -1,95 +1,143 @@
 // ===========================================
 // PÁGINA LOGIN
-// Formulario de inicio de sesión del frontend.
-// NOTA: la validación de usuario/contraseña es
-// LOCAL y SOLO de demostración (prototipo).
-// NO es autenticación real contra el backend.
+// Autenticación real contra el backend
+// (POST /api/auth/login) con diseño de dos
+// columnas inspirado en el login original y
+// mejoras interactivas.
 // ===========================================
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import logo from '../assets/logo.png';
+import logo2 from '../assets/logo2.png';
+import { iniciarSesion } from '../api/authApi';
 import '../styles/Login.css';
 
 function Login() {
-    // Estado local del formulario
-    const [usuario, setUsuario] = useState('');
+    const [correo, setCorreo] = useState(() => localStorage.getItem('recordarCorreo') || '');
     const [contrasena, setContrasena] = useState('');
+    const [recordarme, setRecordarme] = useState(() => !!localStorage.getItem('recordarCorreo'));
+    const [mostrarContrasena, setMostrarContrasena] = useState(false);
+    const [cargando, setCargando] = useState(false);
     const [error, setError] = useState('');
 
-    // Navegación programática tras el acceso
     const navigate = useNavigate();
 
-    // Valida localmente (prototipo) y navega al dashboard
-    function manejarEnvio(evento) {
+    // Envía las credenciales al backend y navega al dashboard.
+    async function manejarEnvio(evento) {
         evento.preventDefault();
+        setError('');
+        setCargando(true);
 
-        // Prototipo de validación. No consulta al backend.
-        if (usuario === 'admin' && contrasena === '123456') {
+        try {
+            const resultado = await iniciarSesion(correo.trim(), contrasena);
+
+            if (recordarme) {
+                localStorage.setItem('recordarCorreo', correo.trim());
+            } else {
+                localStorage.removeItem('recordarCorreo');
+            }
+
+            localStorage.setItem('sesionBaluarte', JSON.stringify(resultado.usuario));
+
             navigate('/dashboard');
-        } else {
-            setError('Usuario o contraseña incorrectos.');
+        } catch (err) {
+            setError(err.message || 'No se pudo iniciar sesión.');
+        } finally {
+            setCargando(false);
         }
     }
 
     return (
-        <div className="login-shell">
-            <div className="login-card">
-                <aside className="login-brand">
-                    <img src={logo} alt="Restaurante Baluarte" className="login-logo" />
-                    <h1>Restaurante Baluarte</h1>
-                    <p>Sistema de administración y gestión para tu restaurante.</p>
-                    <div className="login-brand-footer">
-                        <i className="fa-solid fa-utensils"></i>
-                        Productos, ventas, facturas, inventario y reportes.
+        <div className="login">
+            <div className="login-left">
+                <img src={logo2} alt="Restaurante Baluarte" className="login-food" />
+                <div className="login-overlay">
+                    <h2>Restaurante Baluarte</h2>
+                    <p>Sistema de gestión integral para tu negocio</p>
+                </div>
+            </div>
+
+            <div className="login-right">
+                <div className="login-number">01</div>
+
+                <h1>Iniciar Sesión</h1>
+                <div className="login-line"></div>
+                <p className="login-welcome">
+                    Bienvenido de nuevo al Sistema de Gestión Restaurante Baluarte
+                </p>
+
+                <form onSubmit={manejarEnvio} noValidate>
+                    <label htmlFor="correo">Correo electrónico</label>
+                    <div className="login-input">
+                        <i className="fa-solid fa-envelope"></i>
+                        <input
+                            id="correo"
+                            type="email"
+                            placeholder="Ingresa tu correo"
+                            value={correo}
+                            onChange={(evento) => setCorreo(evento.target.value)}
+                            autoComplete="email"
+                            required
+                        />
                     </div>
-                </aside>
 
-                <section className="login-panel">
-                    <h2>Iniciar Sesión</h2>
-                    <p className="login-subtitle">Accede con tus credenciales</p>
+                    <label htmlFor="contrasena">Contraseña</label>
+                    <div className="login-input">
+                        <i className="fa-solid fa-lock"></i>
+                        <input
+                            id="contrasena"
+                            type={mostrarContrasena ? 'text' : 'password'}
+                            placeholder="Ingresa tu contraseña"
+                            value={contrasena}
+                            onChange={(evento) => setContrasena(evento.target.value)}
+                            autoComplete="current-password"
+                            required
+                        />
+                        <i
+                            className={`fa-solid ${mostrarContrasena ? 'fa-eye-slash' : 'fa-eye'} login-toggle`}
+                            onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                            title={mostrarContrasena ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        ></i>
+                    </div>
 
-                    <form className="login-form" onSubmit={manejarEnvio}>
-                        <div className="form-group">
-                            <label htmlFor="usuario">Usuario</label>
+                    <div className="login-options">
+                        <label className="login-recordar">
                             <input
-                                type="text"
-                                id="usuario"
-                                name="usuario"
-                                placeholder="admin"
-                                value={usuario}
-                                onChange={(evento) => setUsuario(evento.target.value)}
-                                required
+                                type="checkbox"
+                                checked={recordarme}
+                                onChange={(evento) => setRecordarme(evento.target.checked)}
                             />
-                        </div>
+                            Recordarme
+                        </label>
+                        <a href="#" onClick={(evento) => evento.preventDefault()}>
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
 
-                        <div className="form-group">
-                            <label htmlFor="contrasena">Contraseña</label>
-                            <input
-                                type="password"
-                                id="contrasena"
-                                name="contrasena"
-                                placeholder="123456"
-                                value={contrasena}
-                                onChange={(evento) => setContrasena(evento.target.value)}
-                                required
-                            />
-                        </div>
+                    {error && (
+                        <p className="login-error" role="alert">
+                            <i className="fa-solid fa-circle-exclamation"></i>
+                            {error}
+                        </p>
+                    )}
 
-                        {error && <p className="login-error">{error}</p>}
+                    <button type="submit" className="login-btn" disabled={cargando}>
+                        {cargando ? (
+                            <>
+                                <i className="fa-solid fa-spinner fa-spin"></i>
+                                Iniciando...
+                            </>
+                        ) : (
+                            <>
+                                <i className="fa-solid fa-right-to-bracket"></i>
+                                Iniciar Sesión
+                            </>
+                        )}
+                    </button>
+                </form>
 
-                        <button type="submit" className="btn-red login-btn">
-                            <i className="fa-solid fa-right-to-bracket"></i>
-                            Entrar
-                        </button>
-                    </form>
-
-                    <p className="login-nota">
-                        Prototipo de demostración: usuario <strong>admin</strong> / contraseña{' '}
-                        <strong>123456</strong>.
-                    </p>
-                </section>
+                <footer className="login-footer">© 2026 Restaurante Baluarte</footer>
             </div>
         </div>
     );

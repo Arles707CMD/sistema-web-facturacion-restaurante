@@ -13,6 +13,7 @@ const recetaRoutes = require('./routes/recetaRoutes');
 const metaRoutes = require('./routes/metaRoutes');
 const reporteRoutes = require('./routes/reporteRoutes');
 const inventarioRoutes = require('./routes/inventarioRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/recetas', recetaRoutes);
 app.use('/api/metas', metaRoutes);
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/inventario', inventarioRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
     res.json({

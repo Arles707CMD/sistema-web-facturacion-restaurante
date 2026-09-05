@@ -121,9 +121,29 @@ async function eliminarUsuario(idUsuario) {
     return resultado.affectedRows;
 }
 
+// Obtiene un usuario por correo INCLUYENDO el hash de la contraseña.
+// Se usa únicamente para la autenticación (login).
+async function obtenerUsuarioParaAutenticacion(correo) {
+    const [usuario] = await database.query(
+        `SELECT
+            id_usuario,
+            nombre,
+            correo,
+            rol,
+            estado,
+            contrasena_hash
+        FROM usuarios
+        WHERE correo = ?`,
+        [correo]
+    );
+
+    return usuario[0] || null;
+}
+
 module.exports = {
     obtenerUsuarios,
     obtenerUsuarioPorId,
+    obtenerUsuarioParaAutenticacion,
     existeCorreo,
     crearUsuario,
     actualizarUsuario,
