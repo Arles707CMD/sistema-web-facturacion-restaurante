@@ -21,17 +21,64 @@
     overflow: hidden;
 }
 
-.login-food {
+.login-slideshow {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0b1526;
+}
+
+.login-slide {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
+    opacity: 0;
+    animation: login-crossfade 24s infinite;
+}
+
+.login-slide:nth-child(2) {
+    animation-delay: 6s;
+}
+
+.login-slide:nth-child(3) {
+    animation-delay: 12s;
+}
+
+.login-slide:nth-child(4) {
+    animation-delay: 18s;
+}
+
+@keyframes login-crossfade {
+    0% {
+        opacity: 0;
+        transform: scale(1.05);
+    }
+    5% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    24% {
+        opacity: 1;
+        transform: scale(1.18);
+    }
+    29% {
+        opacity: 0;
+        transform: scale(1.18);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.18);
+    }
 }
 
 .login-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(8, 17, 29, 0.15) 0%, rgba(8, 17, 29, 0.85) 100%);
+    background: linear-gradient(180deg, rgba(8, 17, 29, 0.28) 0%, rgba(8, 17, 29, 0.92) 100%);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -39,16 +86,76 @@
     color: #ffffff;
 }
 
+/* ===========================================
+   COMIDAS FLOTANTES
+   =========================================== */
+
+.login-foods {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 30px;
+    color: #ffffff;
+    font-size: 22px;
+}
+
+.login-foods i {
+    opacity: 0.92;
+    animation: login-float 3s ease-in-out infinite;
+}
+
+.login-foods i:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.login-foods i:nth-child(3) {
+    animation-delay: 0.8s;
+}
+
+.login-foods i:nth-child(4) {
+    animation-delay: 1.2s;
+}
+
+/* ===========================================
+   TEXTO DE MARCA (blanco y animado)
+   =========================================== */
+
 .login-overlay h2 {
     font-size: 34px;
     font-weight: 700;
     margin-bottom: 8px;
+    color: #ffffff;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.75);
+    animation: login-fade-up 0.9s ease both, login-float 4s ease-in-out 0.9s infinite;
 }
 
 .login-overlay p {
     font-size: 16px;
-    opacity: 0.85;
+    opacity: 1;
+    color: #ffffff;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.7);
     line-height: 1.6;
+    animation: login-fade-up 0.9s ease 0.3s both;
+}
+
+@keyframes login-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes login-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 /* ===========================================
@@ -60,9 +167,10 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 70px;
+    padding: 50px;
     background: #ffffff;
     position: relative;
+    overflow-y: auto;
 }
 
 .login-number {
@@ -99,7 +207,7 @@
     color: #6b7280;
     font-size: 20px;
     line-height: 1.7;
-    margin-bottom: 45px;
+    margin-bottom: 30px;
 }
 
 /* ===========================================
@@ -114,13 +222,13 @@
 }
 
 .login-input {
-    height: 65px;
+    height: 62px;
     border: 1px solid #d1d5db;
     border-radius: 14px;
     display: flex;
     align-items: center;
     padding: 0 20px;
-    margin-bottom: 28px;
+    margin-bottom: 22px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -229,6 +337,52 @@
 }
 
 /* ===========================================
+   MENSAJE DE ÉXITO
+   =========================================== */
+
+.login-success {
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 13px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===========================================
+   CAMBIAR ENTRE LOGIN Y REGISTRO
+   =========================================== */
+
+.login-cambiar {
+    margin-top: 20px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.login-cambiar button {
+    background: none;
+    border: none;
+    color: #dc2626;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    transition: color 0.2s ease;
+}
+
+.login-cambiar button:hover {
+    color: #b91c1c;
+    text-decoration: underline;
+}
+
+/* ===========================================
    BOTÓN
    =========================================== */
 
@@ -270,7 +424,7 @@
    =========================================== */
 
 .login-footer {
-    margin-top: 70px;
+    margin-top: 36px;
     text-align: center;
     color: #6b7280;
     font-size: 14px;

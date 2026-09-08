@@ -26,4 +26,23 @@ async function iniciarSesion(correo, contrasena) {
     return resultado;
 }
 
-export { iniciarSesion };
+// Crea una cuenta nueva (registro).
+async function registrarUsuario(nombre, correo, contrasena) {
+    const respuesta = await fetch('/api/auth/registro', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nombre, correo, contrasena })
+    });
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+        throw new Error(resultado.mensaje || 'Error al registrar el usuario');
+    }
+
+    return resultado;
+}
+
+export { iniciarSesion, registrarUsuario };
