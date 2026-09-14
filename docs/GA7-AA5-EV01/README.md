@@ -45,7 +45,7 @@ backend/
 - **Método / URL:** `POST /api/auth/register`
 - **Body (JSON):**
 ```json
-{ "nombre": "Usuario Prueba", "correo": "usuario.prueba@baluarte.local", "contrasena": "Prueba123" }
+{ "nombre": "Usuario Prueba", "correo": "usuario.prueba@baluarte.local", "contrasena": "{{testPassword}}" }
 ```
 - **Respuesta 201 (éxito):** nunca incluye contraseña, hash ni salt.
 ```json
@@ -60,7 +60,7 @@ backend/
 - **Método / URL:** `POST /api/auth/login`
 - **Body (JSON):**
 ```json
-{ "correo": "usuario.prueba@baluarte.local", "contrasena": "Prueba123" }
+{ "correo": "usuario.prueba@baluarte.local", "contrasena": "{{testPassword}}" }
 ```
 - **Respuesta 200 (éxito):** devuelve el usuario seguro (sin hash, salt ni contraseña).
 ```json
@@ -93,7 +93,7 @@ Archivo: `postman/Restaurante-Baluarte.local.example.postman_environment.json`
 > No contiene credenciales reales ni secretos de producción.
 
 ## 9. Casos de prueba y resultados
-Ejecutados contra la API local (`http://localhost:3000`). Usuario de prueba: `usuario.aa5@baluarte.local` / `Aa5Prueba123!`.
+Ejecutados contra la API local (`http://localhost:3000`). Usuario de prueba: `usuario.aa5@baluarte.local` / `{{testPassword}}`.
 
 | # | Caso | Esperado | Resultado |
 |---|------|----------|-----------|

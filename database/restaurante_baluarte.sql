@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 -- ============================================================
 -- DATOS INICIALES: usuarios
--- Contraseña por defecto: 123456 (almacenada como hash scrypt)
+-- Contraseña de los usuarios semilla almacenada como hash scrypt
 -- ============================================================
 
 INSERT INTO usuarios (nombre, correo, contrasena_hash, rol, estado) VALUES
