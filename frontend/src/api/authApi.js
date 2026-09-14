@@ -28,7 +28,7 @@ async function iniciarSesion(correo, contrasena) {
 
 // Crea una cuenta nueva (registro).
 async function registrarUsuario(nombre, correo, contrasena) {
-    const respuesta = await fetch('/api/auth/registro', {
+    const respuesta = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
