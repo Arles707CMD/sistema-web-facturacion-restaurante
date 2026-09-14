@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "GA7-AA5-EV01 - Restaurante Baluarte (Autenticación)",
-    "description": "Casos de prueba del servicio web de autenticación (registro y login). Usa las variables {{baseUrl}}, {{testEmail}} y {{testPassword}} del environment.",
+    "name": "GA7-220501096-AA5-EV01 - Restaurante Baluarte (Autenticación)",
+    "description": "Colección con los 10 casos de prueba del servicio de autenticación (registro y login) para la evidencia GA7-220501096-AA5-EV01. Usa las variables {{baseUrl}}, {{testEmail}} y {{testPassword}} del environment.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -9,10 +9,10 @@
       "name": "01 - Registro exitoso",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nombre\": \"Usuario Prueba\",\n  \"correo\": \"{{testEmail}}\",\n  \"contrasena\": \"{{testPassword}}\"\n}"
+          "raw": "{\"nombre\":\"Usuario Prueba\",\"correo\":\"{{testEmail}}\",\"contrasena\":\"{{testPassword}}\"}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/register",
@@ -26,8 +26,9 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
-              "pm.test(\"No expone hash ni salt\", function () { var t = JSON.stringify(pm.response.json()); pm.expect(t).to.not.include('contrasena_hash'); pm.expect(t).to.not.include('salt'); });"
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Devuelve usuario seguro', function () { var u = pm.response.json().usuario; pm.expect(u.rol).to.eql('Ventas'); pm.expect(u.estado).to.eql('Activo'); });",
+              "pm.test('No expone contrasena, hash ni salt', function () { var t = pm.response.text(); pm.expect(t).to.not.include('contrasena_hash'); pm.expect(t).to.not.include('salt'); pm.expect(t).to.not.include('password'); pm.expect(pm.response.json().usuario).to.not.have.property('contrasena'); });"
             ]
           }
         }
@@ -37,10 +38,10 @@
       "name": "02 - Registro correo duplicado",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nombre\": \"Usuario Prueba\",\n  \"correo\": \"{{testEmail}}\",\n  \"contrasena\": \"{{testPassword}}\"\n}"
+          "raw": "{\"nombre\":\"Usuario Prueba\",\"correo\":\"{{testEmail}}\",\"contrasena\":\"{{testPassword}}\"}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/register",
@@ -54,20 +55,22 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Mensaje correo ya registrado', function () { pm.expect(pm.response.json().mensaje).to.include('registrado'); });",
+              "pm.test('No expone hash ni salt', function () { var t = pm.response.text(); pm.expect(t).to.not.include('contrasena_hash'); pm.expect(t).to.not.include('salt'); });"
             ]
           }
         }
       ]
     },
     {
-      "name": "03 - Registro campos faltantes",
+      "name": "03 - Registro nombre vacío",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"correo\": \"{{testEmail}}\"\n}"
+          "raw": "{\"nombre\":\"\",\"correo\":\"{{testEmail}}\",\"contrasena\":\"{{testPassword}}\"}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/register",
@@ -81,20 +84,21 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Mensaje nombre obligatorio', function () { pm.expect(pm.response.json().mensaje).to.include('nombre'); });"
             ]
           }
         }
       ]
     },
     {
-      "name": "04 - Registro contraseña corta",
+      "name": "04 - Registro correo inválido",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nombre\": \"Usuario Prueba\",\n  \"correo\": \"{{testEmail}}\",\n  \"contrasena\": \"12345\"\n}"
+          "raw": "{\"nombre\":\"Usuario Prueba\",\"correo\":\"correo-invalido\",\"contrasena\":\"{{testPassword}}\"}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/register",
@@ -108,20 +112,49 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Mensaje formato invalido', function () { pm.expect(pm.response.json().mensaje).to.include('formato'); });"
             ]
           }
         }
       ]
     },
     {
-      "name": "05 - Login exitoso",
+      "name": "05 - Registro contraseña corta",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"correo\": \"{{testEmail}}\",\n  \"contrasena\": \"{{testPassword}}\"\n}"
+          "raw": "{\"nombre\":\"Usuario Prueba\",\"correo\":\"corta@baluarte.local\",\"contrasena\":\"12345\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Mensaje contrasena corta', function () { pm.expect(pm.response.json().mensaje).to.include('caracteres'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Login exitoso",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"correo\":\"{{testEmail}}\",\"contrasena\":\"{{testPassword}}\"}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/login",
@@ -135,21 +168,22 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"No expone hash ni salt\", function () { var t = JSON.stringify(pm.response.json()); pm.expect(t).to.not.include('contrasena_hash'); pm.expect(t).to.not.include('salt'); });"
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Devuelve usuario autenticado', function () { pm.expect(pm.response.json().usuario.correo).to.eql(pm.environment.get('testEmail')); });",
+              "pm.test('No expone contrasena, hash ni salt', function () { var t = pm.response.text(); pm.expect(t).to.not.include('contrasena_hash'); pm.expect(t).to.not.include('salt'); pm.expect(t).to.not.include('password'); pm.expect(pm.response.json().usuario).to.not.have.property('contrasena'); });"
             ]
           }
         }
       ]
     },
     {
-      "name": "06 - Login contraseña incorrecta",
+      "name": "07 - Login contraseña incorrecta",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"correo\": \"{{testEmail}}\",\n  \"contrasena\": \"incorrecta\"\n}"
+          "raw": "{\"correo\":\"{{testEmail}}\",\"contrasena\":\"contrasena-incorrecta\"}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/login",
@@ -163,20 +197,21 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+              "pm.test('HTTP 401', function () { pm.response.to.have.status(401); });",
+              "pm.test('Mensaje credenciales generico', function () { pm.expect(pm.response.json().mensaje).to.include('incorrectos'); });"
             ]
           }
         }
       ]
     },
     {
-      "name": "07 - Login correo inexistente",
+      "name": "08 - Login correo inexistente",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"correo\": \"noexiste@baluarte.local\",\n  \"contrasena\": \"{{testPassword}}\"\n}"
+          "raw": "{\"correo\":\"noexiste@baluarte.local\",\"contrasena\":\"{{testPassword}}\"}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/login",
@@ -190,20 +225,21 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+              "pm.test('HTTP 401', function () { pm.response.to.have.status(401); });",
+              "pm.test('Mensaje credenciales generico', function () { pm.expect(pm.response.json().mensaje).to.include('incorrectos'); });"
             ]
           }
         }
       ]
     },
     {
-      "name": "08 - Login usuario inactivo",
+      "name": "09 - Login usuario inactivo",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"correo\": \"carlos@baluarte.com\",\n  \"contrasena\": \"{{testPassword}}\"\n}"
+          "raw": "{\"correo\":\"carlos@baluarte.com\",\"contrasena\":\"{{testPassword}}\"}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/login",
@@ -217,7 +253,36 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); });"
+              "pm.test('HTTP 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Mensaje usuario inactivo', function () { pm.expect(pm.response.json().mensaje).to.include('inactivo'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Login campos faltantes",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"correo\":\"{{testEmail}}\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Mensaje contrasena obligatoria', function () { pm.expect(pm.response.json().mensaje).to.include('contrase'); });"
             ]
           }
         }

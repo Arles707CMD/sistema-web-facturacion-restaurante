@@ -3,3 +3,13 @@ backend/.env
 frontend/node_modules/
 frontend/dist/
 frontend/.env*
+
+# Postman Desktop (archivos de workspace auto-generados; no forman parte de la entrega)
+.postman/
+postman/collections/
+postman/environments/
+postman/globals/
+postman/documents/
+postman/flows/
+postman/mocks/
+postman/specs/
