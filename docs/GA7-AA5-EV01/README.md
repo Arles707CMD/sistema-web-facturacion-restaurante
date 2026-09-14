@@ -79,7 +79,7 @@ backend/
 - **Variables de entorno** para credenciales de BD (`.env` no se versiona).
 ## 7. Colección Postman
 Archivo: `postman/GA7-AA5-EV01-Restaurante-Baluarte.postman_collection.json`
-- 8 peticiones (4 de registro + 4 de login) con scripts `pm.test` que validan código de estado
+- 10 peticiones (5 de registro + 5 de login) con scripts `pm.test` que validan código de estado
   y la ausencia de `hash`/`salt`/`contrasena` en las respuestas.
 
 ## 8. Environment de ejemplo
@@ -141,5 +141,5 @@ npm run dev
 1. Abre Postman → Import → selecciona `postman/GA7-AA5-EV01-Restaurante-Baluarte.postman_collection.json`.
 2. Importa el environment `postman/Restaurante-Baluarte.local.example.postman_environment.json`.
 3. Configura `testPassword` (y `testEmail` si lo deseas) con el usuario de prueba.
-4. Ejecuta las peticiones en orden (01 → 08); las pruebas `pm.test` se muestran en la pestaña **Test Results**.
+4. Ejecuta las peticiones en orden (01 → 10); las pruebas `pm.test` se muestran en la pestaña **Test Results**.
 
