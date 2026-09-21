@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const { generarHashContrasena, verificarContrasena } = require('./passwordService');
 
 const usuarioModel = require('../models/usuarioModel');
 
@@ -21,45 +21,8 @@ class ErrorAutenticacion extends Error {
     }
 }
 
-// ===========================================
-// HASHING DE CONTRASEÑAS (scrypt)
-// ===========================================
-
-// scrypt es una función de derivación de clave diseñada para
-// consumir mucha memoria, lo que encarece ataques de fuerza
-// bruta. Se usa un salt aleatorio por usuario (formato
-// "sal:hash"), de modo que dos contraseñas iguales generan
-// hashes distintos y no se pueden usar tablas precalculadas.
-function generarHashContrasena(contrasena) {
-    const sal = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.scryptSync(contrasena, sal, 64).toString('hex');
-
-    return `${sal}:${hash}`;
-}
-
-// Verifica la contraseña contra el hash almacenado ("sal:hash").
-// timingSafeEqual evita ataques de tiempo en la comparación.
-function verificarContrasena(contrasena, hashAlmacenado) {
-    const partes = String(hashAlmacenado).split(':');
-
-    if (partes.length !== 2) {
-        return false;
-    }
-
-    const [sal, hash] = partes;
-
-    try {
-        const hashCalculado = crypto.scryptSync(contrasena, sal, 64);
-        const hashEsperado = Buffer.from(hash, 'hex');
-
-        return (
-            hashCalculado.length === hashEsperado.length &&
-            crypto.timingSafeEqual(hashCalculado, hashEsperado)
-        );
-    } catch (error) {
-        return false;
-    }
-}
+// Las funciones de hash/verificación de contraseñas se reutilizan
+// desde passwordService para no duplicar la lógica criptográfica.
 
 // Valida el formato básico de un correo electrónico.
 function esCorreoValido(correo) {

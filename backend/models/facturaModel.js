@@ -2,23 +2,10 @@ const database = require('../config/database');
 
 // ===========================================
 // MODELO DE FACTURAS Y VENTAS
-// Consultas parametrizadas con mysql2.
-// Las operaciones que afectan varias tablas
-// (crear venta / eliminar factura) son
-// transaccionales.
+// Acceso a datos: consultas SQL parametrizadas.
+// La lógica de negocio (numeración, totales, stock
+// y transacciones) vive en ventaService / facturaService.
 // ===========================================
-
-// Obtiene el porcentaje de IVA desde la configuración (id = 1).
-// Si no existe, utiliza 19 como fallback.
-async function obtenerIva(connection) {
-    const [[configuracion]] = await connection.query(`
-        SELECT iva
-        FROM configuracion
-        WHERE id = 1
-    `);
-
-    return configuracion ? Number(configuracion.iva) : 19;
-}
 
 // ===========================================
 // LECTURA
@@ -86,12 +73,25 @@ async function obtenerFacturaPorId(idFactura) {
         productos: detalle
     };
 }
+
 // ===========================================
-// ESCRITURA TRANSACCIONAL
+// ESCRITURA (funciones granulares que reciben una connection)
 // ===========================================
 
-// Genera el siguiente número de factura único (FAC-000001...).
-async function generarNumeroFactura(connection) {
+// Obtiene el porcentaje de IVA desde la configuración (id = 1).
+// Si no existe, devuelve 19 como fallback.
+async function obtenerIva(connection) {
+    const [[configuracion]] = await connection.query(`
+        SELECT iva
+        FROM configuracion
+        WHERE id = 1
+    `);
+
+    return configuracion ? Number(configuracion.iva) : 19;
+}
+
+// Obtiene el último número de factura (para generar el siguiente).
+async function obtenerUltimoNumeroFactura(connection) {
     const [filas] = await connection.query(`
         SELECT numero_factura
         FROM facturas
@@ -99,176 +99,115 @@ async function generarNumeroFactura(connection) {
         LIMIT 1
     `);
 
-    const ultimo = filas[0]?.numero_factura || '';
-    const coincidencia = String(ultimo).match(/(\d+)$/);
-    const siguiente = (coincidencia ? Number(coincidencia[1]) : 0) + 1;
-
-    return 'FAC-' + String(siguiente).padStart(6, '0');
+    return filas[0]?.numero_factura || '';
 }
 
-// Crea una venta completa (factura + detalles + descuento de stock)
-// de forma transaccional. Si algo falla, hace ROLLBACK.
-async function crearVenta(datosVenta) {
-    const connection = await database.getConnection();
+// Bloquea las filas de productos para leer precio/stock actuales.
+async function bloquearProductos(connection, ids) {
+    const [productos] = await connection.query(`
+        SELECT id_producto, nombre, precio, stock
+        FROM productos
+        WHERE id_producto IN (?)
+        FOR UPDATE
+    `, [ids]);
 
-    try {
-        await connection.beginTransaction();
-
-        const ids = datosVenta.productos.map((item) => item.id_producto);
-
-        // Bloquea las filas de productos para leer precio/stock actuales.
-        const [productos] = await connection.query(`
-            SELECT id_producto, nombre, precio, stock
-            FROM productos
-            WHERE id_producto IN (?)
-            FOR UPDATE
-        `, [ids]);
-
-        const mapaProductos = new Map(
-            productos.map((producto) => [producto.id_producto, producto])
-        );
-
-        // Verifica que cada producto exista y tenga stock suficiente.
-        for (const item of datosVenta.productos) {
-            const producto = mapaProductos.get(item.id_producto);
-
-            if (!producto) {
-                const error = new Error('Producto no encontrado');
-                error.codigo = 'PRODUCTO_NO_EXISTE';
-                throw error;
-            }
-
-            if (Number(producto.stock) < item.cantidad) {
-                const error = new Error(
-                    'Stock insuficiente para el producto "' + producto.nombre + '".'
-                );
-                error.codigo = 'STOCK_INSUFICIENTE';
-                throw error;
-            }
-        }
-
-        // Calcula subtotal, IVA y total siempre en el backend.
-        let subtotal = 0;
-
-        for (const item of datosVenta.productos) {
-            const precio = Number(mapaProductos.get(item.id_producto).precio);
-            subtotal += precio * item.cantidad;
-        }
-
-        // Obtiene el IVA dinámico desde configuración (fallback 19%).
-        const ivaPorcentaje = await obtenerIva(connection);
-        const iva = subtotal * (ivaPorcentaje / 100);
-        const total = subtotal + iva;
-
-        const numeroFactura = await generarNumeroFactura(connection);
-
-        // Inserta la factura.
-        const [resultadoFactura] = await connection.query(`
-            INSERT INTO facturas
-            (numero_factura, cliente, documento, telefono, metodo_pago, observaciones, subtotal, iva, total)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-            numeroFactura,
-            datosVenta.cliente,
-            datosVenta.documento || null,
-            datosVenta.telefono || null,
-            datosVenta.metodo_pago,
-            datosVenta.observaciones || null,
-            subtotal,
-            iva,
-            total
-        ]);
-
-        const idFactura = resultadoFactura.insertId;
-
-        // Inserta cada detalle y descuenta el stock de forma segura.
-        for (const item of datosVenta.productos) {
-            const producto = mapaProductos.get(item.id_producto);
-
-            await connection.query(`
-                INSERT INTO detalle_factura
-                (id_factura, id_producto, cantidad, precio_unitario)
-                VALUES (?, ?, ?, ?)
-            `, [idFactura, item.id_producto, item.cantidad, producto.precio]);
-
-            const [resultadoStock] = await connection.query(`
-                UPDATE productos
-                SET stock = stock - ?
-                WHERE id_producto = ? AND stock >= ?
-            `, [item.cantidad, item.id_producto, item.cantidad]);
-
-            if (resultadoStock.affectedRows === 0) {
-                const error = new Error('Stock insuficiente');
-                error.codigo = 'STOCK_INSUFICIENTE';
-                throw error;
-            }
-        }
-
-        await connection.commit();
-
-        return { idFactura, numeroFactura, total };
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
-    }
+    return productos;
 }
 
-// Elimina una factura y restaura el stock de los productos asociados,
-// de forma transaccional. Devuelve 0 si la factura no existe.
-async function eliminarFactura(idFactura) {
-    const connection = await database.getConnection();
+// Inserta la cabecera de la factura y devuelve su id.
+async function insertarFactura(connection, factura) {
+    const [resultado] = await connection.query(`
+        INSERT INTO facturas
+        (numero_factura, cliente, documento, telefono, metodo_pago, observaciones, subtotal, iva, total)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+        factura.numeroFactura,
+        factura.cliente,
+        factura.documento,
+        factura.telefono,
+        factura.metodo_pago,
+        factura.observaciones,
+        factura.subtotal,
+        factura.iva,
+        factura.total
+    ]);
 
-    try {
-        await connection.beginTransaction();
+    return resultado.insertId;
+}
 
-        const [factura] = await connection.query(`
-            SELECT id_factura
-            FROM facturas
-            WHERE id_factura = ?
-        `, [idFactura]);
+// Inserta una línea de detalle de la factura.
+async function insertarDetalle(connection, detalle) {
+    await connection.query(`
+        INSERT INTO detalle_factura
+        (id_factura, id_producto, cantidad, precio_unitario)
+        VALUES (?, ?, ?, ?)
+    `, [detalle.idFactura, detalle.idProducto, detalle.cantidad, detalle.precioUnitario]);
+}
 
-        if (factura.length === 0) {
-            await connection.rollback();
-            return 0;
-        }
+// Descuenta stock de forma segura (solo si hay suficiente).
+// Devuelve el número de filas afectadas.
+async function descontarStock(connection, idProducto, cantidad) {
+    const [resultado] = await connection.query(`
+        UPDATE productos
+        SET stock = stock - ?
+        WHERE id_producto = ? AND stock >= ?
+    `, [cantidad, idProducto, cantidad]);
 
-        const [detalle] = await connection.query(`
-            SELECT id_producto, cantidad
-            FROM detalle_factura
-            WHERE id_factura = ?
-        `, [idFactura]);
+    return resultado.affectedRows;
+}
 
-        // Restaura el stock de cada producto vendido.
-        for (const item of detalle) {
-            await connection.query(`
-                UPDATE productos
-                SET stock = stock + ?
-                WHERE id_producto = ?
-            `, [item.cantidad, item.id_producto]);
-        }
+// Comprueba si una factura existe.
+async function obtenerFacturaExistente(connection, idFactura) {
+    const [filas] = await connection.query(`
+        SELECT id_factura
+        FROM facturas
+        WHERE id_factura = ?
+    `, [idFactura]);
 
-        // Elimina la factura (ON DELETE CASCADE borra el detalle).
-        const [resultado] = await connection.query(`
-            DELETE FROM facturas
-            WHERE id_factura = ?
-        `, [idFactura]);
+    return filas;
+}
 
-        await connection.commit();
+// Obtiene el detalle (producto + cantidad) de una factura.
+async function obtenerDetalleFactura(connection, idFactura) {
+    const [detalle] = await connection.query(`
+        SELECT id_producto, cantidad
+        FROM detalle_factura
+        WHERE id_factura = ?
+    `, [idFactura]);
 
-        return resultado.affectedRows;
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
-    }
+    return detalle;
+}
+
+// Restaura el stock de un producto.
+async function restaurarStock(connection, idProducto, cantidad) {
+    await connection.query(`
+        UPDATE productos
+        SET stock = stock + ?
+        WHERE id_producto = ?
+    `, [cantidad, idProducto]);
+}
+
+// Elimina el registro de la factura.
+async function eliminarFacturaRegistro(connection, idFactura) {
+    const [resultado] = await connection.query(`
+        DELETE FROM facturas
+        WHERE id_factura = ?
+    `, [idFactura]);
+
+    return resultado.affectedRows;
 }
 
 module.exports = {
     obtenerFacturas,
     obtenerFacturaPorId,
-    crearVenta,
-    eliminarFactura
+    obtenerIva,
+    obtenerUltimoNumeroFactura,
+    bloquearProductos,
+    insertarFactura,
+    insertarDetalle,
+    descontarStock,
+    obtenerFacturaExistente,
+    obtenerDetalleFactura,
+    restaurarStock,
+    eliminarFacturaRegistro
 };

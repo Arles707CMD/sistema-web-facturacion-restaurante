@@ -1,20 +1,19 @@
-const inventarioModel = require('../models/inventarioModel');
+const inventarioService = require('../services/inventarioService');
+const { responderError } = require('../services/errors');
 
 // ===========================================
-// OBTENER RESUMEN DE INVENTARIO
+// CONTROLADOR DE INVENTARIO
+// Solo req/res y códigos HTTP.
 // ===========================================
 
 async function obtenerResumen(req, res) {
     try {
-        const resumen = await inventarioModel.obtenerResumen();
-
+        const resumen = await inventarioService.obtenerResumen();
         res.json(resumen);
     } catch (error) {
+        if (responderError(res, error)) return;
         console.error('Error al obtener el resumen de inventario:', error.message);
-
-        res.status(500).json({
-            mensaje: 'Error al obtener el resumen de inventario'
-        });
+        res.status(500).json({ mensaje: 'Error al obtener el resumen de inventario' });
     }
 }
 

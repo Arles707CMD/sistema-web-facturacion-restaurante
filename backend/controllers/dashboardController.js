@@ -1,20 +1,19 @@
-const dashboardModel = require('../models/dashboardModel');
+const dashboardService = require('../services/dashboardService');
+const { responderError } = require('../services/errors');
 
 // ===========================================
-// OBTENER RESUMEN DEL DASHBOARD
+// CONTROLADOR DEL DASHBOARD
+// Solo req/res y códigos HTTP.
 // ===========================================
 
 async function obtenerResumen(req, res) {
     try {
-        const resumen = await dashboardModel.obtenerResumen();
-
+        const resumen = await dashboardService.obtenerResumen();
         res.json(resumen);
     } catch (error) {
+        if (responderError(res, error)) return;
         console.error('Error al obtener el resumen del dashboard:', error.message);
-
-        res.status(500).json({
-            mensaje: 'Error al obtener el resumen del dashboard'
-        });
+        res.status(500).json({ mensaje: 'Error al obtener el resumen del dashboard' });
     }
 }
 

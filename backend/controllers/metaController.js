@@ -1,28 +1,20 @@
-const metaModel = require('../models/metaModel');
+const metaService = require('../services/metaService');
+const { responderError } = require('../services/errors');
 
 // ===========================================
-// OBTENER RESUMEN DE METAS
+// CONTROLADOR DE METAS
+// Solo req/res y códigos HTTP.
 // ===========================================
 
 async function obtenerResumen(req, res) {
     try {
         const periodo = req.query.periodo || 'mes';
-
-        if (!metaModel.PERIODOS_VALIDOS.includes(periodo)) {
-            return res.status(400).json({
-                mensaje: 'Periodo inválido. Use mes, semana o todo.'
-            });
-        }
-
-        const resumen = await metaModel.obtenerResumenMetas(periodo);
-
+        const resumen = await metaService.obtenerResumen(periodo);
         res.json(resumen);
     } catch (error) {
+        if (responderError(res, error)) return;
         console.error('Error al obtener el resumen de metas:', error.message);
-
-        res.status(500).json({
-            mensaje: 'Error al obtener el resumen de metas'
-        });
+        res.status(500).json({ mensaje: 'Error al obtener el resumen de metas' });
     }
 }
 
