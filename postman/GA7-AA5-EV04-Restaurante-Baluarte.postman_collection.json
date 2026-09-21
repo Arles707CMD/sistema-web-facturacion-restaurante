@@ -1,0 +1,2246 @@
+{
+  "info": {
+    "name": "GA7-AA5-EV04 - Restaurante Baluarte (API del proyecto)",
+    "description": "Coleccion de pruebas de la API del Restaurante Baluarte (GA7-220501096-AA5-EV04). Organizada por modulos: Auth, Productos, Usuarios, Ventas, Facturas, Recetas, Configuracion, Metas, Reportes, Inventario, Dashboard, Auxiliares y Limpieza. Usa {{baseUrl}}, variables de coleccion para IDs temporales ({{idProducto}}, {{idUsuario}}, {{idUsuarioAuth}}, {{idReceta}}, {{idFactura}}) y {{testEmail}}/{{testPassword}} para autenticacion. Sin secretos reales.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "testEmail",
+      "value": "test.ev04@baluarte.local"
+    },
+    {
+      "key": "testPassword",
+      "value": "CAMBIAR_EN_POSTMAN"
+    },
+    {
+      "key": "idProducto",
+      "value": ""
+    },
+    {
+      "key": "idUsuario",
+      "value": ""
+    },
+    {
+      "key": "idUsuarioAuth",
+      "value": ""
+    },
+    {
+      "key": "idReceta",
+      "value": ""
+    },
+    {
+      "key": "idFactura",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Auth",
+      "item": [
+        {
+          "name": "01 - Registro exitoso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Usuario Prueba EV04\",\"correo\":\"{{testEmail}}\",\"contrasena\":\"{{testPassword}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('idUsuarioAuth', pm.response.json().usuario.id_usuario);",
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Respuesta JSON\", function () { pm.response.to.have.jsonBody(); });",
+                  "pm.test(\"usuario seguro con rol y estado\", function () { var u = pm.response.json().usuario; pm.expect(u.rol).to.eql(\"Ventas\"); pm.expect(u.estado).to.eql(\"Activo\"); });",
+                  "pm.test(\"No expone contrasena, hash ni salt\", function () { var t = pm.response.text(); pm.expect(t).to.not.include(\"contrasena_hash\"); pm.expect(t).to.not.include(\"salt\"); pm.expect(pm.response.json().usuario).to.not.have.property(\"contrasena\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Registro nombre vacio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"\",\"correo\":\"{{testEmail}}\",\"contrasena\":\"{{testPassword}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje de error nombre obligatorio\", function () { pm.expect(pm.response.text()).to.include(\"nombre\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Registro correo duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Usuario Prueba EV04\",\"correo\":\"{{testEmail}}\",\"contrasena\":\"{{testPassword}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje de error correo registrado\", function () { pm.expect(pm.response.text()).to.include(\"registrado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Login exitoso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"correo\":\"{{testEmail}}\",\"contrasena\":\"{{testPassword}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Respuesta JSON\", function () { pm.response.to.have.jsonBody(); });",
+                  "pm.test(\"devuelve el usuario registrado\", function () { var u = pm.response.json().usuario; pm.expect(u.correo).to.eql(pm.variables.get(\"testEmail\")); });",
+                  "pm.test(\"No expone contrasena, hash ni salt\", function () { var t = pm.response.text(); pm.expect(t).to.not.include(\"contrasena_hash\"); pm.expect(t).to.not.include(\"salt\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Login credenciales invalidas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"correo\":\"{{testEmail}}\",\"contrasena\":\"contrasena-incorrecta\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"mensaje generico de credenciales\", function () { pm.expect(pm.response.text()).to.include(\"incorrectos\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Login campos faltantes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"correo\":\"{{testEmail}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje contrasena obligatoria\", function () { pm.expect(pm.response.text()).to.include(\"contrase\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Login usuario inactivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"correo\":\"carlos@baluarte.com\",\"contrasena\":\"{{testPassword}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"mensaje usuario inactivo\", function () { pm.expect(pm.response.text()).to.include(\"inactivo\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Productos",
+      "item": [
+        {
+          "name": "01 - GET lista de productos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Respuesta JSON (array con productos semilla)\", function () { var d = pm.response.json(); pm.expect(d).to.be.an(\"array\"); pm.expect(d.length).to.be.at.least(4); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - POST crear producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"TEST-EV04 Producto\",\"descripcion\":\"Producto temporal de prueba\",\"precio\":9999,\"stock\":100,\"idCategoria\":1}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('idProducto', pm.response.json().idProducto);",
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Respuesta JSON con idProducto\", function () { pm.expect(pm.response.json().idProducto).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - GET producto por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{idProducto}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "{{idProducto}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"es el producto temporal\", function () { pm.expect(pm.response.json().nombre).to.include(\"TEST-EV04\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - PUT actualizar producto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{idProducto}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "{{idProducto}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"TEST-EV04 Producto (editado)\",\"descripcion\":\"editado\",\"precio\":9999,\"stock\":100,\"idCategoria\":1}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje actualizado\", function () { pm.expect(pm.response.text()).to.include(\"actualizado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - POST producto nombre vacio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"\",\"descripcion\":\"x\",\"precio\":1000,\"stock\":10,\"idCategoria\":1}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje de error nombre\", function () { pm.expect(pm.response.text()).to.include(\"nombre\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - GET producto id invalido",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "abc"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje id entero\", function () { pm.expect(pm.response.text()).to.include(\"entero\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - GET producto inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "99999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"mensaje no encontrado\", function () { pm.expect(pm.response.text()).to.include(\"no encontrado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - PUT producto inexistente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "99999"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"X\",\"precio\":1000,\"stock\":10,\"idCategoria\":1}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"mensaje no encontrado\", function () { pm.expect(pm.response.text()).to.include(\"no encontrado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 - DELETE producto inexistente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "99999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"mensaje no encontrado\", function () { pm.expect(pm.response.text()).to.include(\"no encontrado\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Usuarios",
+      "item": [
+        {
+          "name": "01 - GET lista de usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"array sin informacion sensible\", function () { var d = pm.response.json(); pm.expect(d).to.be.an(\"array\"); pm.expect(pm.response.text()).to.not.include(\"contrasena_hash\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - POST crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Usuario Admin EV04\",\"correo\":\"admin.ev04@baluarte.local\",\"contrasena\":\"{{testPassword}}\",\"rol\":\"Administrador\",\"estado\":\"Activo\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('idUsuario', pm.response.json().idUsuario);",
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Respuesta JSON con idUsuario\", function () { pm.expect(pm.response.json().idUsuario).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - GET usuario por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/{{idUsuario}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "{{idUsuario}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"es el usuario temporal y sin hash\", function () { var u = pm.response.json(); pm.expect(u.nombre).to.include(\"EV04\"); pm.expect(u).to.not.have.property(\"contrasena_hash\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - PUT actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/{{idUsuario}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "{{idUsuario}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Usuario Admin EV04 Editado\",\"correo\":\"admin.ev04@baluarte.local\",\"rol\":\"Ventas\",\"estado\":\"Activo\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje actualizado\", function () { pm.expect(pm.response.text()).to.include(\"actualizado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - POST correo duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"X\",\"correo\":\"juan@baluarte.com\",\"contrasena\":\"{{testPassword}}\",\"rol\":\"Ventas\",\"estado\":\"Activo\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje correo registrado\", function () { pm.expect(pm.response.text()).to.include(\"registrado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - POST rol invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"X\",\"correo\":\"rol.invalido@baluarte.local\",\"contrasena\":\"{{testPassword}}\",\"rol\":\"SuperAdmin\",\"estado\":\"Activo\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje rol invalido\", function () { pm.expect(pm.response.text()).to.include(\"rol\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - GET usuario inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "99999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"mensaje no encontrado\", function () { pm.expect(pm.response.text()).to.include(\"no encontrado\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Ventas",
+      "item": [
+        {
+          "name": "01 - POST venta exitosa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"cliente\":\"Cliente Prueba EV04\",\"documento\":\"123456789\",\"telefono\":\"3001234567\",\"metodo_pago\":\"Efectivo\",\"observaciones\":\"Venta temporal\",\"productos\":[{\"id_producto\":{{idProducto}},\"cantidad\":2}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('idFactura', pm.response.json().idFactura);",
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Respuesta JSON con factura y total\", function () { var j = pm.response.json(); pm.expect(j.idFactura).to.be.a(\"number\"); pm.expect(j.numeroFactura).to.be.a(\"string\"); pm.expect(j.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - POST venta cliente vacio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"cliente\":\"\",\"metodo_pago\":\"Efectivo\",\"productos\":[{\"id_producto\":{{idProducto}},\"cantidad\":1}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje cliente obligatorio\", function () { pm.expect(pm.response.text()).to.include(\"cliente\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - POST venta carrito vacio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"cliente\":\"X\",\"metodo_pago\":\"Efectivo\",\"productos\":[]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje carrito\", function () { pm.expect(pm.response.text()).to.include(\"carrito\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - POST venta metodo pago invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"cliente\":\"X\",\"metodo_pago\":\"Bitcoin\",\"productos\":[{\"id_producto\":{{idProducto}},\"cantidad\":1}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje metodo de pago\", function () { pm.expect(pm.response.text()).to.include(\"pago\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - POST venta producto inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"cliente\":\"X\",\"metodo_pago\":\"Efectivo\",\"productos\":[{\"id_producto\":99999,\"cantidad\":1}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje producto no encontrado\", function () { pm.expect(pm.response.text()).to.include(\"no encontrado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - POST venta stock insuficiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"cliente\":\"X\",\"metodo_pago\":\"Efectivo\",\"productos\":[{\"id_producto\":{{idProducto}},\"cantidad\":9999}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje stock insuficiente\", function () { pm.expect(pm.response.text()).to.include(\"insuficiente\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Facturas",
+      "item": [
+        {
+          "name": "01 - GET lista de facturas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Respuesta JSON (array)\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - GET factura por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas/{{idFactura}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "{{idFactura}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"factura con numero y detalle\", function () { var j = pm.response.json(); pm.expect(j.numero_factura).to.be.a(\"string\"); pm.expect(j.productos).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - GET factura inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "99999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"mensaje no encontrada\", function () { pm.expect(pm.response.text()).to.include(\"no encontrada\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Recetas",
+      "item": [
+        {
+          "name": "01 - GET lista de recetas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Respuesta JSON (array)\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - POST crear receta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id_producto\":{{idProducto}},\"porciones\":4,\"tiempo\":15,\"estado\":\"Activa\",\"descripcion\":\"Receta temporal\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('idReceta', pm.response.json().idReceta);",
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Respuesta JSON con idReceta\", function () { pm.expect(pm.response.json().idReceta).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - GET receta por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas/{{idReceta}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas",
+                "{{idReceta}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"receta con producto\", function () { var j = pm.response.json(); pm.expect(j.id_receta).to.be.a(\"number\"); pm.expect(j.producto).to.include(\"TEST-EV04\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - PUT actualizar receta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas/{{idReceta}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas",
+                "{{idReceta}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id_producto\":{{idProducto}},\"porciones\":6,\"tiempo\":20,\"estado\":\"Inactiva\",\"descripcion\":\"Receta editada\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje actualizada\", function () { pm.expect(pm.response.text()).to.include(\"actualizada\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - POST receta producto inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id_producto\":99999,\"porciones\":4,\"tiempo\":15,\"estado\":\"Activa\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje producto no existe\", function () { pm.expect(pm.response.text()).to.include(\"no existe\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - POST receta duplicada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id_producto\":{{idProducto}},\"porciones\":4,\"tiempo\":15,\"estado\":\"Activa\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje receta duplicada\", function () { pm.expect(pm.response.text()).to.include(\"Ya existe una receta\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - POST receta estado invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id_producto\":{{idProducto}},\"porciones\":4,\"tiempo\":15,\"estado\":\"NoExiste\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje estado invalido\", function () { pm.expect(pm.response.text()).to.include(\"estado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - GET receta inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas",
+                "99999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"mensaje no encontrada\", function () { pm.expect(pm.response.text()).to.include(\"no encontrada\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 - Configuracion",
+      "item": [
+        {
+          "name": "01 - GET configuracion",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/configuracion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "configuracion"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"tiene meta_mensual e iva\", function () { var j = pm.response.json(); pm.expect(j).to.have.property(\"meta_mensual\"); pm.expect(j).to.have.property(\"iva\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - PUT actualizar configuracion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/configuracion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "configuracion"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Restaurante Baluarte EV04\",\"meta_mensual\":60000000,\"iva\":16}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje actualizada\", function () { pm.expect(pm.response.text()).to.include(\"actualizada\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - PUT IVA invalido",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/configuracion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "configuracion"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Restaurante Baluarte\",\"meta_mensual\":50000000,\"iva\":150}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje IVA invalido\", function () { pm.expect(pm.response.text()).to.include(\"IVA\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 - Metas",
+      "item": [
+        {
+          "name": "01 - GET resumen periodo mes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/metas/resumen?periodo=mes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "metas",
+                "resumen"
+              ],
+              "query": [
+                {
+                  "key": "periodo",
+                  "value": "mes"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"tiene metaMensual y ventas\", function () { var j = pm.response.json(); pm.expect(j).to.have.property(\"metaMensual\"); pm.expect(j).to.have.property(\"ventas\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - GET resumen periodo invalido",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/metas/resumen?periodo=ano",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "metas",
+                "resumen"
+              ],
+              "query": [
+                {
+                  "key": "periodo",
+                  "value": "ano"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"mensaje periodo invalido\", function () { pm.expect(pm.response.text()).to.include(\"Periodo\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "09 - Reportes",
+      "item": [
+        {
+          "name": "01 - GET resumen de reportes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reportes/resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "resumen"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"tiene ventas y totalFacturas\", function () { var j = pm.response.json(); pm.expect(j).to.have.property(\"ventas\"); pm.expect(j).to.have.property(\"totalFacturas\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10 - Inventario",
+      "item": [
+        {
+          "name": "01 - GET resumen de inventario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventario/resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inventario",
+                "resumen"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"tiene totalProductos y stockTotal\", function () { var j = pm.response.json(); pm.expect(j).to.have.property(\"totalProductos\"); pm.expect(j).to.have.property(\"stockTotal\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "11 - Dashboard",
+      "item": [
+        {
+          "name": "01 - GET resumen de dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "resumen"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"tiene ventasTotales y totalFacturas\", function () { var j = pm.response.json(); pm.expect(j).to.have.property(\"ventasTotales\"); pm.expect(j).to.have.property(\"totalFacturas\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "12 - Auxiliares",
+      "item": [
+        {
+          "name": "01 - GET health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"backend funcionando\", function () { pm.expect(pm.response.text()).to.include(\"funcionando\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - GET prueba-db",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/prueba-db",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "prueba-db"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"conexion exitosa\", function () { pm.expect(pm.response.text()).to.include(\"exitosa\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "13 - Limpieza",
+      "item": [
+        {
+          "name": "01 - DELETE factura temporal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas/{{idFactura}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "{{idFactura}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje eliminada\", function () { pm.expect(pm.response.text()).to.include(\"eliminada\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Verificar stock restaurado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{idProducto}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "{{idProducto}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"stock restaurado a 100\", function () { pm.expect(Number(pm.response.json().stock)).to.eql(100); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - DELETE receta temporal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/recetas/{{idReceta}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recetas",
+                "{{idReceta}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje eliminada\", function () { pm.expect(pm.response.text()).to.include(\"eliminada\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - DELETE producto temporal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{idProducto}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "{{idProducto}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje eliminado\", function () { pm.expect(pm.response.text()).to.include(\"eliminado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - DELETE usuario administrativo temporal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/{{idUsuario}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "{{idUsuario}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje eliminado\", function () { pm.expect(pm.response.text()).to.include(\"eliminado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - DELETE usuario auth temporal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/{{idUsuarioAuth}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "{{idUsuarioAuth}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje eliminado\", function () { pm.expect(pm.response.text()).to.include(\"eliminado\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - PUT restaurar configuracion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/configuracion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "configuracion"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Restaurante Baluarte\",\"meta_mensual\":50000000,\"iva\":19}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"mensaje actualizada\", function () { pm.expect(pm.response.text()).to.include(\"actualizada\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - Verificar estado final productos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"solo 4 productos semilla\", function () { var d = pm.response.json(); pm.expect(d.length).to.eql(4); pm.expect(pm.response.text()).to.not.include(\"TEST-EV04\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
