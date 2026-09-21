@@ -1982,6 +1982,19 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GUARDA: salta la request si el ID temporal esta vacio (no hay recurso temporal que limpiar).",
+                  "const id = pm.collectionVariables.get('idFactura');",
+                  "if (!id || id === '') {",
+                  "    pm.execution.skipRequest('No hay factura temporal para limpiar');",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -2016,6 +2029,19 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GUARDA: salta la request si el ID temporal esta vacio (no hay recurso temporal que limpiar).",
+                  "const id = pm.collectionVariables.get('idProducto');",
+                  "if (!id || id === '') {",
+                  "    pm.execution.skipRequest('No hay producto temporal para verificar');",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -2052,6 +2078,19 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GUARDA: salta la request si el ID temporal esta vacio (no hay recurso temporal que limpiar).",
+                  "const id = pm.collectionVariables.get('idReceta');",
+                  "if (!id || id === '') {",
+                  "    pm.execution.skipRequest('No hay receta temporal para limpiar');",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -2086,6 +2125,19 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GUARDA: salta la request si el ID temporal esta vacio (no hay recurso temporal que limpiar).",
+                  "const id = pm.collectionVariables.get('idProducto');",
+                  "if (!id || id === '') {",
+                  "    pm.execution.skipRequest('No hay producto temporal para limpiar');",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -2122,6 +2174,19 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GUARDA: salta la request si el ID temporal esta vacio (no hay recurso temporal que limpiar).",
+                  "const id = pm.collectionVariables.get('idUsuario');",
+                  "if (!id || id === '') {",
+                  "    pm.execution.skipRequest('No hay usuario administrativo temporal para limpiar');",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -2156,6 +2221,19 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GUARDA: salta la request si el ID temporal esta vacio (no hay recurso temporal que limpiar).",
+                  "const id = pm.collectionVariables.get('idUsuarioAuth');",
+                  "if (!id || id === '') {",
+                  "    pm.execution.skipRequest('No hay usuario de auth temporal para limpiar');",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
