@@ -1,5 +1,5 @@
 const recetaModel = require('../models/recetaModel');
-const { ErrorServicio } = require('./errors');
+const { ErrorServicio, esErrorIntegridad } = require('./errors');
 
 // ===========================================
 // SERVICIO DE RECETAS
@@ -118,7 +118,21 @@ async function actualizarReceta(id, datos) {
 
 async function eliminarReceta(id) {
     const idReceta = await validarId(id);
-    const filasEliminadas = await recetaModel.eliminarReceta(idReceta);
+
+    let filasEliminadas;
+
+    try {
+        filasEliminadas = await recetaModel.eliminarReceta(idReceta);
+    } catch (error) {
+        if (esErrorIntegridad(error)) {
+            throw new ErrorServicio(
+                400,
+                'No se puede eliminar la receta porque tiene registros relacionados.'
+            );
+        }
+
+        throw error;
+    }
 
     if (filasEliminadas === 0) {
         throw new ErrorServicio(404, 'Receta no encontrada');

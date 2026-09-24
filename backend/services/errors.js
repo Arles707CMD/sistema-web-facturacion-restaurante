@@ -36,7 +36,20 @@ function responderError(res, error) {
     return true;
 }
 
+// Detecta errores de integridad referencial de MySQL/MariaDB
+// (código 1451: "Cannot delete or update a parent row: a foreign key constraint fails").
+function esErrorIntegridad(error) {
+    return Boolean(
+        error &&
+        (error.code === 1451 ||
+            error.errno === 1451 ||
+            error.sqlState === '23000' ||
+            String(error.message || '').includes('foreign key constraint'))
+    );
+}
+
 module.exports = {
     ErrorServicio,
-    responderError
+    responderError,
+    esErrorIntegridad
 };

@@ -1,5 +1,5 @@
 const productoModel = require('../models/productoModel');
-const { ErrorServicio } = require('./errors');
+const { ErrorServicio, esErrorIntegridad } = require('./errors');
 
 // ===========================================
 // SERVICIO DE PRODUCTOS
@@ -104,7 +104,21 @@ async function actualizarProducto(id, datos) {
 
 async function eliminarProducto(id) {
     const idProducto = await validarId(id);
-    const filasEliminadas = await productoModel.eliminarProducto(idProducto);
+
+    let filasEliminadas;
+
+    try {
+        filasEliminadas = await productoModel.eliminarProducto(idProducto);
+    } catch (error) {
+        if (esErrorIntegridad(error)) {
+            throw new ErrorServicio(
+                400,
+                'No se puede eliminar el producto porque tiene registros relacionados.'
+            );
+        }
+
+        throw error;
+    }
 
     if (filasEliminadas === 0) {
         throw new ErrorServicio(404, 'Producto no encontrado');

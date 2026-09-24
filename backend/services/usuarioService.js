@@ -1,5 +1,5 @@
 const usuarioModel = require('../models/usuarioModel');
-const { ErrorServicio } = require('./errors');
+const { ErrorServicio, esErrorIntegridad } = require('./errors');
 const { generarHashContrasena } = require('./passwordService');
 
 // ===========================================
@@ -143,7 +143,21 @@ async function actualizarUsuario(id, datos) {
 
 async function eliminarUsuario(id) {
     const idUsuario = await validarId(id);
-    const filasEliminadas = await usuarioModel.eliminarUsuario(idUsuario);
+
+    let filasEliminadas;
+
+    try {
+        filasEliminadas = await usuarioModel.eliminarUsuario(idUsuario);
+    } catch (error) {
+        if (esErrorIntegridad(error)) {
+            throw new ErrorServicio(
+                400,
+                'No se puede eliminar el usuario porque tiene registros relacionados.'
+            );
+        }
+
+        throw error;
+    }
 
     if (filasEliminadas === 0) {
         throw new ErrorServicio(404, 'Usuario no encontrado');
