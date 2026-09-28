@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 const { generarHashContrasena, verificarContrasena } = require('./passwordService');
 
 const usuarioModel = require('../models/usuarioModel');
@@ -42,6 +44,30 @@ function aUsuarioSeguro(usuario) {
         rol: usuario.rol,
         estado: usuario.estado
     };
+}
+
+// Genera un token JWT con el id y el rol del usuario y su expiración.
+function generarToken(usuario) {
+    const secreto = process.env.JWT_SECRET;
+
+    if (!secreto) {
+        throw new ErrorAutenticacion(
+            'JWT_NO_CONFIGURADO',
+            'JWT_SECRET no configurado en el servidor.',
+            500
+        );
+    }
+
+    const expira = process.env.TOKEN_EXPIRA || '2h';
+    const token = jwt.sign(
+        { id_usuario: usuario.id_usuario, rol: usuario.rol },
+        secreto,
+        { expiresIn: expira }
+    );
+    const payload = jwt.decode(token);
+    const expiraEn = payload.exp * 1000; // milisegundos
+
+    return { token, expiraEn };
 }
 
 // ===========================================
@@ -122,7 +148,9 @@ async function iniciarSesion({ correo, contrasena }) {
         throw new ErrorAutenticacion('CREDENCIALES_INVALIDAS', 'Correo o contraseña incorrectos.', 401);
     }
 
-    return aUsuarioSeguro(usuario);
+    const { token, expiraEn } = generarToken(usuario);
+
+    return { usuario: aUsuarioSeguro(usuario), token, expiraEn };
 }
 
 module.exports = {

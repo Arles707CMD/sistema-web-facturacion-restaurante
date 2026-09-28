@@ -4,6 +4,11 @@
 // Utiliza el proxy de Vite (/api → localhost:3000).
 // ===========================================
 
+import { apiFetch } from './apiClient';
+
+// Todas las peticiones usan apiFetch, que añade el token JWT.
+const fetch = apiFetch;
+
 const API_URL = '/api/facturas';
 
 // Construye el mensaje de error incluyendo los detalles por campo.

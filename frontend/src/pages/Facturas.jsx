@@ -18,10 +18,14 @@ import {
     obtenerFactura,
     obtenerFacturas
 } from '../api/facturaApi';
+import { obtenerSesion } from '../api/apiClient';
 
 import '../styles/Facturas.css';
 
 function Facturas() {
+    // Usuario en sesión: solo el Administrador puede eliminar facturas.
+    const usuario = obtenerSesion();
+    const puedeEliminar = usuario?.rol === 'Administrador';
     // Lista de facturas obtenida del backend
     const [facturas, setFacturas] = useState([]);
 
@@ -218,6 +222,7 @@ return (
                 ) : (
                     <FacturaTable
                         facturas={facturasFiltradas}
+                        puedeEliminar={puedeEliminar}
                         onVer={verFactura}
                         onEliminar={eliminarFacturaHandler}
                     />

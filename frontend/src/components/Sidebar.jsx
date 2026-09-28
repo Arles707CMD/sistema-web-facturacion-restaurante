@@ -24,6 +24,11 @@ function Sidebar() {
     const navigate = useNavigate();
     const usuario = obtenerUsuario();
 
+    // Muestra únicamente los módulos permitidos según el rol del usuario.
+    const modulosVisibles = modulos.filter(
+        (modulo) => !Array.isArray(modulo.roles) || modulo.roles.includes(usuario?.rol)
+    );
+
     // Cierra sesión: limpia el almacenamiento y vuelve al login.
     function cerrarSesion() {
         localStorage.removeItem('sesionBaluarte');
@@ -38,7 +43,7 @@ function Sidebar() {
 
             <nav>
                 <ul>
-                    {modulos.map((modulo) => (
+                    {modulosVisibles.map((modulo) => (
                         <li key={modulo.ruta}>
                             <NavLink
                                 to={modulo.ruta}

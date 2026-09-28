@@ -44,7 +44,16 @@ function Login() {
                 localStorage.removeItem('recordarCorreo');
             }
 
-            localStorage.setItem('sesionBaluarte', JSON.stringify(resultado.usuario));
+            // Se guarda la sesión completa (usuario + token) para que
+            // apiClient y el guard de rutas puedan autenticar las peticiones.
+            localStorage.setItem(
+                'sesionBaluarte',
+                JSON.stringify({
+                    ...resultado.usuario,
+                    token: resultado.token,
+                    expiraEn: resultado.expiraEn
+                })
+            );
 
             navigate('/dashboard');
         } catch (err) {

@@ -15,7 +15,7 @@ function formatearFecha(fecha) {
     return new Date(fecha).toLocaleDateString('es-CO');
 }
 
-function FacturaTable({ facturas, onVer, onEliminar }) {
+function FacturaTable({ facturas, puedeEliminar = false, onVer, onEliminar }) {
     if (facturas.length === 0) {
         return (
             <EmptyState
@@ -62,14 +62,16 @@ function FacturaTable({ facturas, onVer, onEliminar }) {
                                 >
                                     <i className="fa-solid fa-eye"></i>
                                 </button>
-                                <button
-                                    type="button"
-                                    className="btn-icon eliminar"
-                                    title="Eliminar factura"
-                                    onClick={() => onEliminar(factura)}
-                                >
-                                    <i className="fa-solid fa-trash"></i>
-                                </button>
+                                {puedeEliminar && (
+                                    <button
+                                        type="button"
+                                        className="btn-icon eliminar"
+                                        title="Eliminar factura"
+                                        onClick={() => onEliminar(factura)}
+                                    >
+                                        <i className="fa-solid fa-trash"></i>
+                                    </button>
+                                )}
                             </td>
                         </tr>
                     ))}

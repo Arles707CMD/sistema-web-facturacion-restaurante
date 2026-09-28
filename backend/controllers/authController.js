@@ -1,4 +1,9 @@
 const authService = require('../services/authService');
+const {
+    claveIntento,
+    limpiarIntentos,
+    registrarIntentoFallido
+} = require('../middleware/authMiddleware');
 
 // ===========================================
 // CONTROLADOR DE AUTENTICACIÓN
@@ -11,14 +16,24 @@ const authService = require('../services/authService');
 // POST /api/auth/login
 async function login(req, res) {
     try {
-        const usuario = await authService.iniciarSesion(req.body || {});
+        const { usuario, token, expiraEn } = await authService.iniciarSesion(req.body || {});
+
+        // Login correcto: se reinician los intentos fallidos de esta clave.
+        limpiarIntentos(claveIntento(req));
 
         res.json({
             mensaje: 'Inicio de sesión correcto',
-            usuario
+            usuario,
+            token,
+            expiraEn
         });
     } catch (error) {
         if (error instanceof authService.ErrorAutenticacion) {
+            // Credenciales inválidas, campos faltantes o usuario inactivo: intento fallido.
+            if (error.estado === 400 || error.estado === 401 || error.estado === 403) {
+                registrarIntentoFallido(claveIntento(req));
+            }
+
             return res.status(error.estado).json({ mensaje: error.message });
         }
 

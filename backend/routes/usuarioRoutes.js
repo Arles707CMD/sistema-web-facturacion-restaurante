@@ -1,5 +1,6 @@
 const express = require('express');
 
+const { autenticar, autorizarRol } = require('../middleware/authMiddleware');
 const {
     obtenerUsuarios,
     obtenerUsuarioPorId,
@@ -9,6 +10,9 @@ const {
 } = require('../controllers/usuarioController');
 
 const router = express.Router();
+
+// La gestión de usuarios es exclusiva del Administrador.
+router.use(autenticar, autorizarRol('Administrador'));
 
 router.get('/', obtenerUsuarios);
 router.get('/:id', obtenerUsuarioPorId);

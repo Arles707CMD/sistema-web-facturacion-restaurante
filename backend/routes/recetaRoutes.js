@@ -1,5 +1,6 @@
 const express = require('express');
 
+const { autenticar, autorizarRol } = require('../middleware/authMiddleware');
 const {
     obtenerRecetas,
     obtenerRecetaPorId,
@@ -9,6 +10,9 @@ const {
 } = require('../controllers/recetaController');
 
 const router = express.Router();
+
+// Las recetas solo las gestionan Administrador e Inventario.
+router.use(autenticar, autorizarRol('Administrador', 'Inventario'));
 
 router.get('/', obtenerRecetas);
 router.get('/:id', obtenerRecetaPorId);

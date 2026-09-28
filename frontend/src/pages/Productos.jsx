@@ -14,6 +14,7 @@ import ProductoForm from '../components/ProductoForm';
 import ProductoTable from '../components/ProductoTable';
 import ResumenCards from '../components/ResumenCards';
 
+import { obtenerSesion } from '../api/apiClient';
 import {
     crearProducto,
     actualizarProducto,
@@ -22,6 +23,9 @@ import {
 } from '../api/productoApi';
 
 function Productos() {
+    // Usuario en sesión y permisos de edición de productos.
+    const usuario = obtenerSesion();
+    const puedeEditar = ['Administrador', 'Inventario'].includes(usuario?.rol);
     // Lista completa de productos obtenida del backend
     const [productos, setProductos] = useState([]);
 
@@ -181,10 +185,12 @@ function Productos() {
                         <i className="fa-solid fa-box-open"></i>
                         Gestión de Productos
                     </h2>
-                    <button className="btn-red" type="button" onClick={abrirNuevoProducto}>
-                        <i className="fa-solid fa-plus"></i>
-                        Nuevo Producto
-                    </button>
+                    {puedeEditar && (
+                        <button className="btn-red" type="button" onClick={abrirNuevoProducto}>
+                            <i className="fa-solid fa-plus"></i>
+                            Nuevo Producto
+                        </button>
+                    )}
                 </div>
 
                 {mensaje && <Mensaje tipo={mensaje.tipo} texto={mensaje.texto} />}
@@ -219,6 +225,7 @@ function Productos() {
                 ) : (
                     <ProductoTable
                         productos={productosFiltrados}
+                        puedeEditar={puedeEditar}
                         onVer={verProducto}
                         onEditar={abrirEditarProducto}
                         onEliminar={eliminarProductoHandler}

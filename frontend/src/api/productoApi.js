@@ -5,6 +5,11 @@
 // redirige /api hacia http://localhost:3000.
 // ===========================================
 
+import { apiFetch } from './apiClient';
+
+// Todas las peticiones usan apiFetch, que añade el token JWT.
+const fetch = apiFetch;
+
 const API_URL = '/api/productos';
 
 // Construye el mensaje de error a partir de la respuesta del backend.

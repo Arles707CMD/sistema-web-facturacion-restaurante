@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const database = require('./config/database');
+const { noCache, seguridadHeaders } = require('./middleware/authMiddleware');
 const productoRoutes = require('./routes/productoRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const ventaRoutes = require('./routes/ventaRoutes');
@@ -17,8 +18,27 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-app.use(cors());
+// CORS estricto: se refleja SOLO el origen real del frontend
+// (configurable por entorno). Las peticiones de otros orígenes
+// se atienden sin cabeceras CORS, por lo que el navegador las bloquea.
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+
+app.use(
+    cors({
+        origin(origen, callback) {
+            // Permite peticiones sin cabecera Origin (mismo origen, curl, tooling)
+            // y refleja únicamente el origen permitido.
+            if (!origen || origen === CLIENT_ORIGIN) {
+                callback(null, true);
+            } else {
+                callback(null, false);
+            }
+        }
+    })
+);
 app.use(express.json());
+app.use(noCache);
+app.use(seguridadHeaders);
 
 app.use('/api/productos', productoRoutes);
 app.use('/api/usuarios', usuarioRoutes);

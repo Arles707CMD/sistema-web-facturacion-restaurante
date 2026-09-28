@@ -36,7 +36,7 @@ function obtenerEstadoStock(stock) {
     return 'Disponible';
 }
 
-function ProductoTable({ productos, onVer, onEditar, onEliminar }) {
+function ProductoTable({ productos, puedeEditar = false, onVer, onEditar, onEliminar }) {
     return (
         <div className="tabla-responsive">
             <table className="tabla-productos">
@@ -73,22 +73,26 @@ function ProductoTable({ productos, onVer, onEditar, onEliminar }) {
                                 >
                                     <i className="fa-solid fa-eye"></i>
                                 </button>
-                                <button
-                                    type="button"
-                                    className="btn-icon editar"
-                                    title="Editar"
-                                    onClick={() => onEditar(producto)}
-                                >
-                                    <i className="fa-solid fa-pen"></i>
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn-icon eliminar"
-                                    title="Eliminar"
-                                    onClick={() => onEliminar(producto)}
-                                >
-                                    <i className="fa-solid fa-trash"></i>
-                                </button>
+                                {puedeEditar && (
+                                    <button
+                                        type="button"
+                                        className="btn-icon editar"
+                                        title="Editar"
+                                        onClick={() => onEditar(producto)}
+                                    >
+                                        <i className="fa-solid fa-pen"></i>
+                                    </button>
+                                )}
+                                {puedeEditar && (
+                                    <button
+                                        type="button"
+                                        className="btn-icon eliminar"
+                                        title="Eliminar"
+                                        onClick={() => onEliminar(producto)}
+                                    >
+                                        <i className="fa-solid fa-trash"></i>
+                                    </button>
+                                )}
                             </td>
                         </tr>
                     ))}
