@@ -1,0 +1,45 @@
+# ===========================================
+# RESTAURANTE BALUARTE - CONFIGURACIÓN DE NETLIFY
+# Publicación del frontend (React + Vite).
+# El backend se despliega aparte en Render y la base de
+# datos en Aiven. Guía completa en:
+# docs/deployment/PREPARACION_HOSTING.md
+# ===========================================
+
+[build]
+  # Carpeta del repositorio donde vive el frontend.
+  base = "frontend"
+  # Comando de compilación (genera la carpeta dist/).
+  command = "npm run build"
+  # Carpeta que publica Netlify (relativa a base).
+  publish = "dist"
+
+[build.environment]
+  # Versión de Node para compilar (Vite 8 requiere Node 20 o superior).
+  NODE_VERSION = "22"
+
+# -------------------------------------------
+# REGLA DE PROXY DE LA API (PENDIENTE)
+# -------------------------------------------
+# Cuando el backend esté publicado en Render y exista una URL
+# pública real, añadir aquí la regla de proxy para /api/*.
+# Debe colocarse ANTES de la regla SPA para tener prioridad,
+# ya que Netlify aplica la primera regla que coincide.
+# Sustituir <url-del-backend> por la URL real de Render:
+#
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://<url-del-backend>/api/:splat"
+#   status = 200
+#   force = true
+
+# -------------------------------------------
+# REGLA SPA (React Router)
+# -------------------------------------------
+# Al recargar rutas como /dashboard, /ventas, /productos o
+# /facturas, Netlify devuelve index.html (200) y React Router
+# resuelve la ruta en el cliente.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
