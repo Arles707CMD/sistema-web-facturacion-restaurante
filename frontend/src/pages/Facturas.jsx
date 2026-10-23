@@ -19,6 +19,7 @@ import {
     obtenerFacturas
 } from '../api/facturaApi';
 import { obtenerSesion } from '../api/apiClient';
+import { exportarCsvExcel } from '../utils/csvExport';
 
 import '../styles/Facturas.css';
 
@@ -101,12 +102,14 @@ function Facturas() {
         }
     }
 
-    // Exporta las facturas a un archivo CSV
+    // Exporta las facturas a un archivo CSV con formato para Excel
+    // en español (separador ";", directiva sep=;, UTF-8 con BOM, CRLF).
+    // La construcción y descarga del archivo vive en utils/csvExport.
     function exportarCsv() {
-        const encabezado = [
+        const encabezados = [
             'numero_factura', 'fecha', 'cliente', 'documento',
             'metodo_pago', 'subtotal', 'iva', 'total'
-        ].join(',');
+        ];
 
         const filas = facturas.map((factura) => [
             factura.numero_factura,
@@ -117,17 +120,9 @@ function Facturas() {
             factura.subtotal,
             factura.iva,
             factura.total
-        ].map((valor) => '"' + String(valor ?? '').replaceAll('"', '""') + '"').join(','));
+        ]);
 
-        const contenido = '\uFEFF' + [encabezado, ...filas].join('\n');
-        const enlace = document.createElement('a');
-
-        enlace.href = URL.createObjectURL(
-            new Blob([contenido], { type: 'text/csv;charset=utf-8' })
-        );
-        enlace.download = 'facturas-baluarte.csv';
-        enlace.click();
-        URL.revokeObjectURL(enlace.href);
+        exportarCsvExcel('facturas-baluarte.csv', encabezados, filas);
     }
 
     // Facturas filtradas por número o cliente

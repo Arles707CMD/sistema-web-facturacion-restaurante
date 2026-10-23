@@ -11,6 +11,10 @@ facturasReporte.forEach(f => (f.productos || []).forEach(p => { const clave = p.
 const filas = Object.values(ventasPorProducto).sort((a,b) => b.total - a.total);
 document.getElementById("tablaReporte").innerHTML = filas.length ? filas.map(p => `<tr><td>${p.nombre}</td><td>${p.cantidad}</td><td>${BaluarteData.moneda(p.total)}</td></tr>`).join("") : '<tr><td colspan="3">Aún no hay ventas para generar el reporte.</td></tr>';
 document.getElementById("exportarReporte").addEventListener("click", () => {
-    const contenido = ["Producto,Cantidad,Total", ...filas.map(p => `"${p.nombre.replaceAll('"','""')}",${p.cantidad},${p.total}`)].join("\n");
-    const enlace = document.createElement("a"); enlace.href = URL.createObjectURL(new Blob(["\uFEFF" + contenido], { type: "text/csv;charset=utf-8" })); enlace.download = "reporte-baluarte.csv"; enlace.click(); URL.revokeObjectURL(enlace.href);
+    // Exportación CSV para Excel en español (separador ";", UTF-8 con
+    // BOM, CRLF y escapado). La lógica vive en js/csvExport.js.
+    const encabezados = ["Producto", "Cantidad", "Total"];
+    const filasExport = filas.map(p => [p.nombre, p.cantidad, p.total]);
+
+    exportarCsvExcel("reporte-baluarte.csv", encabezados, filasExport);
 });

@@ -262,16 +262,15 @@ const btnExportar = document.querySelector(".btn-exportar");
 
 if (btnExportar) {
     btnExportar.addEventListener("click", () => {
-        const encabezado = "Factura,Fecha,Cliente,Documento,Metodo,Subtotal,IVA,Total";
+        // Exportación CSV para Excel en español (separador ";", UTF-8 con
+        // BOM, CRLF y escapado). La lógica vive en js/csvExport.js.
+        const encabezados = ["Factura", "Fecha", "Cliente", "Documento", "Metodo", "Subtotal", "IVA", "Total"];
+
         const filas = facturas.map(factura => [
             factura.numero, factura.fecha, factura.cliente, factura.documento,
             factura.metodo, factura.subtotal, factura.iva, factura.total
-        ].map(valor => `"${String(valor ?? "").replaceAll('"', '""')}"`).join(","));
-        const archivo = new Blob(["\uFEFF" + [encabezado, ...filas].join("\n")], { type: "text/csv;charset=utf-8" });
-        const enlace = document.createElement("a");
-        enlace.href = URL.createObjectURL(archivo);
-        enlace.download = "facturas-baluarte.csv";
-        enlace.click();
-        URL.revokeObjectURL(enlace.href);
+        ]);
+
+        exportarCsvExcel("facturas-baluarte.csv", encabezados, filas);
     });
 }

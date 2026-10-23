@@ -12,6 +12,7 @@ import ReporteResumen from '../components/ReporteResumen';
 import VentasPorProducto from '../components/VentasPorProducto';
 
 import { obtenerResumenReportes } from '../api/reporteApi';
+import { exportarCsvExcel } from '../utils/csvExport';
 
 import '../styles/Reportes.css';
 
@@ -42,25 +43,19 @@ function Reportes() {
         }
     }
 
-    // Exporta los productos vendidos a CSV
+    // Exporta los productos vendidos a CSV con formato para Excel
+    // en español (separador ";", directiva sep=;, UTF-8 con BOM, CRLF).
+    // La construcción y descarga del archivo vive en utils/csvExport.
     function exportarCsv() {
-        const encabezado = 'Producto,Unidades,Ventas';
+        const encabezados = ['Producto', 'Unidades', 'Ventas'];
 
-        const filas = resumen.ventasPorProducto.map((producto) =>
-            [producto.nombre, producto.cantidad, producto.total]
-                .map((valor) => '"' + String(valor ?? '').replaceAll('"', '""') + '"')
-                .join(',')
-        );
+        const filas = resumen.ventasPorProducto.map((producto) => [
+            producto.nombre,
+            producto.cantidad,
+            producto.total
+        ]);
 
-        const contenido = '\uFEFF' + [encabezado, ...filas].join('\n');
-        const enlace = document.createElement('a');
-
-        enlace.href = URL.createObjectURL(
-            new Blob([contenido], { type: 'text/csv;charset=utf-8' })
-        );
-        enlace.download = 'reporte-baluarte.csv';
-        enlace.click();
-        URL.revokeObjectURL(enlace.href);
+        exportarCsvExcel('reporte-baluarte.csv', encabezados, filas);
     }
 
     if (cargando) {
