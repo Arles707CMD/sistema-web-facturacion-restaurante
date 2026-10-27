@@ -143,13 +143,13 @@ function Login() {
             </div>
 
             <div className="login-right">
-                <header className="login-brand">
-                    <img
-                        src={logo2}
-                        alt="Restaurante Baluarte"
-                        className="login-logo"
-                    />
-                </header>
+                <div className="login-decoracion" aria-hidden="true">
+                    <div className="comida"></div>
+                    <div className="boca">
+                        <div className="boca-interior"></div>
+                        <div className="lengua"></div>
+                    </div>
+                </div>
 
                 <h1>
                     {modo === 'login'
