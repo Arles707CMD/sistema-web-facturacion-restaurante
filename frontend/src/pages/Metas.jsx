@@ -5,16 +5,20 @@
 // de metas con un periodo seleccionable.
 // ===========================================
 
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
 import Mensaje from '../components/Mensaje';
 import MetasResumen from '../components/MetasResumen';
 import RankingProductos from '../components/RankingProductos';
-import GraficoVentas from '../components/GraficoVentas';
 
 import { obtenerResumenMetas } from '../api/metaApi';
 
 import '../styles/Metas.css';
+
+// Chart.js es la dependencia más pesada del bundle; se carga de
+// forma diferida únicamente cuando el gráfico se va a mostrar.
+// El fallback usa la misma clase para reservar la altura del panel.
+const GraficoVentas = lazy(() => import('../components/GraficoVentas'));
 
 function Metas() {
     // Periodo seleccionado y datos del resumen
@@ -91,7 +95,9 @@ function Metas() {
                                 Gráfico de ventas
                             </h2>
                         </div>
-                        <GraficoVentas ventasSemana={resumen.grafica} />
+                        <Suspense fallback={<div className="grafico-contenedor"></div>}>
+                            <GraficoVentas ventasSemana={resumen.grafica} />
+                        </Suspense>
                     </section>
 
                     <section className="panel">

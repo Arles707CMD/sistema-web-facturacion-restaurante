@@ -4,18 +4,22 @@
 // reales de MariaDB obtenidos mediante la API.
 // ===========================================
 
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
 import Mensaje from '../components/Mensaje';
 import Loading from '../components/common/Loading';
 import DashboardCards from '../components/DashboardCards';
-import GraficoVentas from '../components/GraficoVentas';
 import ProductosMasVendidos from '../components/ProductosMasVendidos';
 import ActividadReciente from '../components/ActividadReciente';
 
 import { obtenerResumen } from '../api/dashboardApi';
 
 import '../styles/Dashboard.css';
+
+// Chart.js es la dependencia más pesada del bundle; se carga de
+// forma diferida únicamente cuando el gráfico se va a mostrar.
+// El fallback usa la misma clase para reservar la altura del panel.
+const GraficoVentas = lazy(() => import('../components/GraficoVentas'));
 
 function Dashboard() {
     // Resumen del dashboard y estados de carga/error
@@ -63,7 +67,9 @@ function Dashboard() {
                         Ventas de la semana
                     </h2>
                 </div>
-                <GraficoVentas ventasSemana={resumen.ventasSemana} />
+                <Suspense fallback={<div className="grafico-contenedor"></div>}>
+                    <GraficoVentas ventasSemana={resumen.ventasSemana} />
+                </Suspense>
             </section>
 
             <div className="dashboard-columnas">
