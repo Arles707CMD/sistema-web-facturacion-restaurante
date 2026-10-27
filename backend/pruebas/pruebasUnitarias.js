@@ -16,6 +16,11 @@ const {
 } = require('../services/secuenciaService');
 const { generarNumeroFactura } = require('../services/ventaService');
 const { describirErrorCorreo } = require('../services/recuperacionService');
+const {
+    ErrorCorreo,
+    construirSolicitudBrevo,
+    enviarCorreoRecuperacion
+} = require('../services/correoService');
 
 let correctas = 0;
 let fallidas = 0;
@@ -23,6 +28,18 @@ let fallidas = 0;
 function prueba(nombre, funcion) {
     try {
         funcion();
+        console.log('  ✔ ' + nombre);
+        correctas += 1;
+    } catch (error) {
+        console.error('  ✘ ' + nombre + ' → ' + error.message);
+        fallidas += 1;
+    }
+}
+
+// Variante asíncrona para funciones que devuelven promesas.
+async function pruebaAsincrona(nombre, funcion) {
+    try {
+        await funcion();
         console.log('  ✔ ' + nombre);
         correctas += 1;
     } catch (error) {
@@ -98,32 +115,22 @@ prueba('último FAC-000046 → siguiente FAC-000047', () => {
     assert.strictEqual(generarNumeroFactura('FAC-000046'), 'FAC-000047');
 });
 
-console.log('\nrecuperacionService (registro sanitizado de errores SMTP):');
+console.log('\nrecuperacionService (registro sanitizado de errores de Brevo):');
 
-prueba('distingue code y responseCode (EAUTH 535)', () => {
+prueba('distingue code, http y código de error de Brevo', () => {
     const descripcion = describirErrorCorreo({
-        code: 'EAUTH',
-        responseCode: 535,
-        response: '535-5.7.8 Username and Password not accepted'
+        codigo: 'BREVO_NO_AUTORIZADO',
+        message: 'La clave API de Brevo no es válida.',
+        detalle: {
+            httpStatus: 401,
+            codigoBrevo: 'unauthorized',
+            textoBrevo: 'Key is invalid'
+        }
     });
 
-    assert.ok(descripcion.includes('code=EAUTH'));
-    assert.ok(descripcion.includes('smtp=535'));
-});
-
-prueba('errores de conexión (ETIMEDOUT) quedan identificables', () => {
-    const descripcion = describirErrorCorreo({
-        code: 'ETIMEDOUT',
-        syscall: 'connect',
-        message: 'connect ETIMEDOUT'
-    });
-
-    assert.ok(descripcion.includes('code=ETIMEDOUT'));
-    assert.ok(descripcion.includes('syscall=connect'));
-});
-
-prueba('errores de socket (ESOCKET) quedan identificables', () => {
-    assert.ok(describirErrorCorreo({ code: 'ESOCKET' }).includes('code=ESOCKET'));
+    assert.ok(descripcion.includes('code=BREVO_NO_AUTORIZADO'));
+    assert.ok(descripcion.includes('http=401'));
+    assert.ok(descripcion.includes('brevo=unauthorized'));
 });
 
 prueba('error vacío produce SIN_CODIGO sin lanzar excepción', () => {
@@ -132,63 +139,238 @@ prueba('error vacío produce SIN_CODIGO sin lanzar excepción', () => {
 });
 
 prueba('acota el texto del error a 300 caracteres', () => {
-    const descripcion = describirErrorCorreo({
-        code: 'ECONNECTION',
-        message: 'x'.repeat(500)
-    });
+    const descripcion = describirErrorCorreo({ message: 'x'.repeat(500) });
 
     assert.ok(descripcion.length < 350);
 });
 
-prueba('enmascara el usuario SMTP si aparece en el texto', () => {
-    const original = process.env.SMTP_USER;
+prueba('enmascara la clave API si apareciera en el texto', () => {
+    const original = process.env.BREVO_API_KEY;
 
-    process.env.SMTP_USER = 'cuenta-ficticia-de-prueba@ejemplo.com';
+    process.env.BREVO_API_KEY = 'clave-ficticia-solo-pruebas';
 
     try {
         const descripcion = describirErrorCorreo({
-            code: 'EAUTH',
-            message: 'auth failed for cuenta-ficticia-de-prueba@ejemplo.com'
+            message: 'fallo con clave-ficticia-solo-pruebas en el texto'
         });
 
         assert.ok(descripcion.includes('***'));
-        assert.ok(!descripcion.includes('cuenta-ficticia-de-prueba@ejemplo.com'));
+        assert.ok(!descripcion.includes('clave-ficticia-solo-pruebas'));
     } finally {
         if (original === undefined) {
-            delete process.env.SMTP_USER;
+            delete process.env.BREVO_API_KEY;
         } else {
-            process.env.SMTP_USER = original;
+            process.env.BREVO_API_KEY = original;
         }
     }
 });
 
-prueba('enmascara la contraseña SMTP si apareciera en el texto', () => {
-    const original = process.env.SMTP_PASSWORD;
+// ===========================================
+// correoService (API HTTPS de Brevo): las pruebas inyectan una
+// función de red FALSA; nunca se envían correos reales.
+// ===========================================
 
-    process.env.SMTP_PASSWORD = 'valor-ficticio-no-secreto';
+// Valores de entorno FICTICIOS, exclusivos de las pruebas.
+const ENV_PRUEBA = {
+    BREVO_API_KEY: 'clave-ficticia-solo-pruebas',
+    BREVO_FROM_EMAIL: 'remitente-ficticio@ejemplo.prueba',
+    BREVO_FROM_NAME: 'Restaurante Baluarte'
+};
 
-    try {
-        const descripcion = describirErrorCorreo({
-            code: 'EAUTH',
-            message: 'invalid login valor-ficticio-no-secreto'
-        });
+const entornoOriginal = {};
 
-        assert.ok(descripcion.includes('***'));
-        assert.ok(!descripcion.includes('valor-ficticio-no-secreto'));
-    } finally {
-        if (original === undefined) {
-            delete process.env.SMTP_PASSWORD;
-        } else {
-            process.env.SMTP_PASSWORD = original;
-        }
-    }
+Object.keys(ENV_PRUEBA).forEach((nombre) => {
+    entornoOriginal[nombre] = process.env[nombre];
+    process.env[nombre] = ENV_PRUEBA[nombre];
 });
 
-console.log(
-    `\nResultado: ${correctas} pruebas correctas, ${fallidas} fallidas ` +
-    `de ${correctas + fallidas}.`
-);
-
-if (fallidas > 0) {
-    process.exit(1);
+function restaurarEntorno() {
+    Object.keys(ENV_PRUEBA).forEach((nombre) => {
+        if (entornoOriginal[nombre] === undefined) {
+            delete process.env[nombre];
+        } else {
+            process.env[nombre] = entornoOriginal[nombre];
+        }
+    });
 }
+
+(async () => {
+    console.log('\ncorreoService (API de Brevo con red simulada, sin envíos reales):');
+
+    try {
+        await pruebaAsincrona('construye la petición correcta a /v3/smtp/email', async () => {
+            const { opciones, cuerpo } = construirSolicitudBrevo({
+                destino: 'destino-ficticio@ejemplo.prueba',
+                enlace: 'https://frontend-prueba/restablecer?token=ficticio'
+            });
+
+            assert.strictEqual(opciones.hostname, 'api.brevo.com');
+            assert.strictEqual(opciones.path, '/v3/smtp/email');
+            assert.strictEqual(opciones.method, 'POST');
+            assert.strictEqual(opciones.headers['api-key'], ENV_PRUEBA.BREVO_API_KEY);
+            assert.strictEqual(opciones.headers['Content-Type'], 'application/json');
+
+            const analizado = JSON.parse(cuerpo);
+
+            assert.strictEqual(analizado.sender.email, ENV_PRUEBA.BREVO_FROM_EMAIL);
+            assert.strictEqual(analizado.to[0].email, 'destino-ficticio@ejemplo.prueba');
+            assert.ok(analizado.textContent.includes('restablecer?token=ficticio'));
+            assert.ok(analizado.htmlContent.includes('restablecer?token=ficticio'));
+
+            // Protección contra filtraciones: la clave API no va en el cuerpo.
+            assert.ok(!cuerpo.includes(ENV_PRUEBA.BREVO_API_KEY));
+        });
+
+        await pruebaAsincrona('envío satisfactorio (201) devuelve true', async () => {
+            const resultado = await enviarCorreoRecuperacion(
+                'destino-ficticio@ejemplo.prueba',
+                'https://frontend-prueba/restablecer?token=ficticio',
+                async () => ({ estado: 201, cuerpo: '{"messageId":"id-ficticio"}' })
+            );
+
+            assert.strictEqual(resultado, true);
+        });
+
+        await pruebaAsincrona('sin credenciales lanza CORREO_NO_CONFIGURADO', async () => {
+            const clave = process.env.BREVO_API_KEY;
+
+            delete process.env.BREVO_API_KEY;
+
+            try {
+                await enviarCorreoRecuperacion(
+                    'destino-ficticio@ejemplo.prueba',
+                    'https://frontend-prueba/restablecer?token=ficticio',
+                    async () => ({ estado: 201, cuerpo: '{}' })
+                );
+
+                throw new Error('debió fallar por falta de configuración');
+            } catch (error) {
+                assert.ok(error instanceof ErrorCorreo);
+                assert.strictEqual(error.codigo, 'CORREO_NO_CONFIGURADO');
+            } finally {
+                process.env.BREVO_API_KEY = clave;
+            }
+        });
+
+        await pruebaAsincrona('HTTP 401 se clasifica como BREVO_NO_AUTORIZADO', async () => {
+            try {
+                await enviarCorreoRecuperacion(
+                    'destino-ficticio@ejemplo.prueba',
+                    'https://frontend-prueba/restablecer?token=ficticio',
+                    async () => ({
+                        estado: 401,
+                        cuerpo: '{"code":"unauthorized","message":"Key is invalid"}'
+                    })
+                );
+
+                throw new Error('debió fallar con 401');
+            } catch (error) {
+                assert.ok(error instanceof ErrorCorreo);
+                assert.strictEqual(error.codigo, 'BREVO_NO_AUTORIZADO');
+                assert.strictEqual(error.detalle.httpStatus, 401);
+                assert.strictEqual(error.detalle.codigoBrevo, 'unauthorized');
+            }
+        });
+
+        await pruebaAsincrona('HTTP 429 se clasifica como límite alcanzado', async () => {
+            try {
+                await enviarCorreoRecuperacion(
+                    'destino-ficticio@ejemplo.prueba',
+                    'https://frontend-prueba/restablecer?token=ficticio',
+                    async () => ({ estado: 429, cuerpo: '{"code":"too_many_requests"}' })
+                );
+
+                throw new Error('debió fallar con 429');
+            } catch (error) {
+                assert.strictEqual(error.codigo, 'BREVO_LIMITE_ALCANZADO');
+            }
+        });
+
+        await pruebaAsincrona('HTTP 400 se clasifica como remitente/solicitud inválida', async () => {
+            try {
+                await enviarCorreoRecuperacion(
+                    'destino-ficticio@ejemplo.prueba',
+                    'https://frontend-prueba/restablecer?token=ficticio',
+                    async () => ({
+                        estado: 400,
+                        cuerpo: '{"code":"unauthorized_sender","message":"sender is not verified"}'
+                    })
+                );
+
+                throw new Error('debió fallar con 400');
+            } catch (error) {
+                assert.strictEqual(error.codigo, 'BREVO_SOLICITUD_INVALIDA');
+                assert.strictEqual(error.detalle.codigoBrevo, 'unauthorized_sender');
+            }
+        });
+
+        await pruebaAsincrona('tiempo de espera excedido se clasifica correctamente', async () => {
+            try {
+                await enviarCorreoRecuperacion(
+                    'destino-ficticio@ejemplo.prueba',
+                    'https://frontend-prueba/restablecer?token=ficticio',
+                    async () => {
+                        throw new Error('TIEMPO_EXCEDIDO');
+                    }
+                );
+
+                throw new Error('debió fallar por tiempo de espera');
+            } catch (error) {
+                assert.strictEqual(error.codigo, 'BREVO_TIEMPO_EXCEDIDO');
+            }
+        });
+
+        await pruebaAsincrona('fallo de red se clasifica como BREVO_FALLO_RED', async () => {
+            try {
+                await enviarCorreoRecuperacion(
+                    'destino-ficticio@ejemplo.prueba',
+                    'https://frontend-prueba/restablecer?token=ficticio',
+                    async () => {
+                        throw Object.assign(new Error('connect ECONNREFUSED'), {
+                            code: 'ECONNREFUSED'
+                        });
+                    }
+                );
+
+                throw new Error('debió fallar por red');
+            } catch (error) {
+                assert.strictEqual(error.codigo, 'BREVO_FALLO_RED');
+                assert.strictEqual(error.detalle.errorRed, 'ECONNREFUSED');
+            }
+        });
+
+        await pruebaAsincrona('el diagnóstico no revela clave, destinatario ni enlace', async () => {
+            try {
+                await enviarCorreoRecuperacion(
+                    'destino-ficticio@ejemplo.prueba',
+                    'https://frontend-prueba/restablecer?token=ficticio',
+                    async () => ({
+                        estado: 401,
+                        cuerpo: '{"code":"unauthorized","message":"Key clave-ficticia-solo-pruebas invalid"}'
+                    })
+                );
+
+                throw new Error('debió fallar con 401');
+            } catch (error) {
+                const descripcion = describirErrorCorreo(error);
+
+                assert.ok(descripcion.includes('***'));
+                assert.ok(!descripcion.includes(ENV_PRUEBA.BREVO_API_KEY));
+                // Ni el destinatario ni el enlace aparecen en el diagnóstico.
+                assert.ok(!descripcion.includes('destino-ficticio'));
+                assert.ok(!descripcion.includes('token=ficticio'));
+            }
+        });
+    } finally {
+        restaurarEntorno();
+    }
+
+    console.log(
+        `\nResultado: ${correctas} pruebas correctas, ${fallidas} fallidas ` +
+        `de ${correctas + fallidas}.`
+    );
+
+    if (fallidas > 0) {
+        process.exit(1);
+    }
+})();

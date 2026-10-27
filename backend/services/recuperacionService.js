@@ -29,25 +29,27 @@ function calcularHashToken(token) {
     return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-// Describe un error SMTP para el log de diagnóstico de forma
-// SANITIZADA: solo el código de error, el código de respuesta
-// SMTP y un texto acotado donde el usuario y la contraseña SMTP
-// se enmascaran. Permite distinguir EAUTH, ETIMEDOUT, ECONNECTION
-// o ESOCKET. Nunca incluye el destinatario, el token, el enlace
-// generado, valores de variables de entorno ni el objeto
-// completo del error.
+// Describe un error de envío de correo para el log de forma
+// SANITIZADA: código de error, estado HTTP y código de error de
+// Brevo cuando existen, con un texto acotado donde cualquier
+// aparición de la clave API queda enmascarada. Permite distinguir
+// problemas de autenticación (401), permisos (403), remitente no
+// verificado (400), límites (429), red o tiempo de espera.
+// Nunca incluye el destinatario, el token, el enlace generado,
+// la clave API ni el objeto completo del error.
 function describirErrorCorreo(error) {
-    const usuarioSmtp = process.env.SMTP_USER;
-    const secretoSmtp = process.env.SMTP_PASSWORD;
+    const claveApi = process.env.BREVO_API_KEY;
 
-    let texto = String((error && (error.response || error.message)) || '');
+    let texto = String(
+        (error &&
+            ((error.detalle && error.detalle.textoBrevo) ||
+                error.message ||
+                error.code)) ||
+        ''
+    );
 
-    if (usuarioSmtp) {
-        texto = texto.split(usuarioSmtp).join('***');
-    }
-
-    if (secretoSmtp) {
-        texto = texto.split(secretoSmtp).join('***');
+    if (claveApi) {
+        texto = texto.split(claveApi).join('***');
     }
 
     // Texto acotado: evita volcar respuestas enormes en el log.
@@ -55,14 +57,14 @@ function describirErrorCorreo(error) {
         texto = texto.slice(0, 300) + '…';
     }
 
-    const codigo = (error && error.code) || 'SIN_CODIGO';
-    const respuestaSmtp = (error && error.responseCode) || '';
-    const syscall = (error && error.syscall) || '';
+    const codigo = (error && (error.codigo || error.code)) || 'SIN_CODIGO';
+    const httpEstado = (error && error.detalle && error.detalle.httpStatus) || '';
+    const codigoBrevo = (error && error.detalle && error.detalle.codigoBrevo) || '';
 
     return (
         `code=${codigo}` +
-        (respuestaSmtp ? ` smtp=${respuestaSmtp}` : '') +
-        (syscall ? ` syscall=${syscall}` : '') +
+        (httpEstado ? ` http=${httpEstado}` : '') +
+        (codigoBrevo ? ` brevo=${codigoBrevo}` : '') +
         (texto ? ` :: ${texto}` : '')
     );
 }
@@ -117,11 +119,14 @@ async function solicitarRecuperacion(correo) {
         await enviarCorreoRecuperacion(usuario.correo, enlace);
     } catch (error) {
         // Nunca se registran el token ni el destinatario del fallo.
-        if (error instanceof ErrorCorreo) {
-            console.error('Recuperación: SMTP sin configurar, el correo no se pudo enviar.');
+        if (error instanceof ErrorCorreo && error.codigo === 'CORREO_NO_CONFIGURADO') {
+            console.error(
+                'Recuperación: Brevo sin configurar (BREVO_API_KEY / BREVO_FROM_EMAIL), ' +
+                'el correo no se pudo enviar.'
+            );
         } else {
-            // Registro diagnóstico sanitizado: distingue EAUTH,
-            // ETIMEDOUT, ECONNECTION, ESOCKET, etc. sin secretos.
+            // Registro diagnóstico sanitizado: distingue autenticación,
+            // permisos, remitente, límites, red o tiempo de espera.
             console.error(
                 'Recuperación: error al enviar el correo de recuperación.',
                 describirErrorCorreo(error)
