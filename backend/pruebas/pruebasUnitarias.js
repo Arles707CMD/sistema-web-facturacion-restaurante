@@ -15,6 +15,7 @@ const {
     formatearNumeroFactura
 } = require('../services/secuenciaService');
 const { generarNumeroFactura } = require('../services/ventaService');
+const { describirErrorCorreo } = require('../services/recuperacionService');
 
 let correctas = 0;
 let fallidas = 0;
@@ -95,6 +96,92 @@ prueba('sin facturas previas → FAC-000001', () => {
 
 prueba('último FAC-000046 → siguiente FAC-000047', () => {
     assert.strictEqual(generarNumeroFactura('FAC-000046'), 'FAC-000047');
+});
+
+console.log('\nrecuperacionService (registro sanitizado de errores SMTP):');
+
+prueba('distingue code y responseCode (EAUTH 535)', () => {
+    const descripcion = describirErrorCorreo({
+        code: 'EAUTH',
+        responseCode: 535,
+        response: '535-5.7.8 Username and Password not accepted'
+    });
+
+    assert.ok(descripcion.includes('code=EAUTH'));
+    assert.ok(descripcion.includes('smtp=535'));
+});
+
+prueba('errores de conexión (ETIMEDOUT) quedan identificables', () => {
+    const descripcion = describirErrorCorreo({
+        code: 'ETIMEDOUT',
+        syscall: 'connect',
+        message: 'connect ETIMEDOUT'
+    });
+
+    assert.ok(descripcion.includes('code=ETIMEDOUT'));
+    assert.ok(descripcion.includes('syscall=connect'));
+});
+
+prueba('errores de socket (ESOCKET) quedan identificables', () => {
+    assert.ok(describirErrorCorreo({ code: 'ESOCKET' }).includes('code=ESOCKET'));
+});
+
+prueba('error vacío produce SIN_CODIGO sin lanzar excepción', () => {
+    assert.ok(describirErrorCorreo({}).includes('code=SIN_CODIGO'));
+    assert.ok(describirErrorCorreo(null).includes('code=SIN_CODIGO'));
+});
+
+prueba('acota el texto del error a 300 caracteres', () => {
+    const descripcion = describirErrorCorreo({
+        code: 'ECONNECTION',
+        message: 'x'.repeat(500)
+    });
+
+    assert.ok(descripcion.length < 350);
+});
+
+prueba('enmascara el usuario SMTP si aparece en el texto', () => {
+    const original = process.env.SMTP_USER;
+
+    process.env.SMTP_USER = 'cuenta-ficticia-de-prueba@ejemplo.com';
+
+    try {
+        const descripcion = describirErrorCorreo({
+            code: 'EAUTH',
+            message: 'auth failed for cuenta-ficticia-de-prueba@ejemplo.com'
+        });
+
+        assert.ok(descripcion.includes('***'));
+        assert.ok(!descripcion.includes('cuenta-ficticia-de-prueba@ejemplo.com'));
+    } finally {
+        if (original === undefined) {
+            delete process.env.SMTP_USER;
+        } else {
+            process.env.SMTP_USER = original;
+        }
+    }
+});
+
+prueba('enmascara la contraseña SMTP si apareciera en el texto', () => {
+    const original = process.env.SMTP_PASSWORD;
+
+    process.env.SMTP_PASSWORD = 'valor-ficticio-no-secreto';
+
+    try {
+        const descripcion = describirErrorCorreo({
+            code: 'EAUTH',
+            message: 'invalid login valor-ficticio-no-secreto'
+        });
+
+        assert.ok(descripcion.includes('***'));
+        assert.ok(!descripcion.includes('valor-ficticio-no-secreto'));
+    } finally {
+        if (original === undefined) {
+            delete process.env.SMTP_PASSWORD;
+        } else {
+            process.env.SMTP_PASSWORD = original;
+        }
+    }
 });
 
 console.log(

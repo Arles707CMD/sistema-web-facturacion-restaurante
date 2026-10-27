@@ -33,7 +33,10 @@ function estaConfigurado() {
 
 // Crea el transporte a partir de las variables de entorno.
 function crearTransporte() {
-    const puerto = Number(process.env.SMTP_PORT || 587);
+    // Puerto con validación: si SMTP_PORT está vacío, con espacios o
+    // no es numérico, se usa el estándar 587 (STARTTLS de Gmail).
+    const puertoLeido = Number(process.env.SMTP_PORT || 587);
+    const puerto = Number.isFinite(puertoLeido) ? puertoLeido : 587;
     const seguro = process.env.SMTP_SECURE === 'true' || puerto === 465;
 
     return nodemailer.createTransport({

@@ -29,6 +29,44 @@ function calcularHashToken(token) {
     return crypto.createHash('sha256').update(token).digest('hex');
 }
 
+// Describe un error SMTP para el log de diagnóstico de forma
+// SANITIZADA: solo el código de error, el código de respuesta
+// SMTP y un texto acotado donde el usuario y la contraseña SMTP
+// se enmascaran. Permite distinguir EAUTH, ETIMEDOUT, ECONNECTION
+// o ESOCKET. Nunca incluye el destinatario, el token, el enlace
+// generado, valores de variables de entorno ni el objeto
+// completo del error.
+function describirErrorCorreo(error) {
+    const usuarioSmtp = process.env.SMTP_USER;
+    const secretoSmtp = process.env.SMTP_PASSWORD;
+
+    let texto = String((error && (error.response || error.message)) || '');
+
+    if (usuarioSmtp) {
+        texto = texto.split(usuarioSmtp).join('***');
+    }
+
+    if (secretoSmtp) {
+        texto = texto.split(secretoSmtp).join('***');
+    }
+
+    // Texto acotado: evita volcar respuestas enormes en el log.
+    if (texto.length > 300) {
+        texto = texto.slice(0, 300) + '…';
+    }
+
+    const codigo = (error && error.code) || 'SIN_CODIGO';
+    const respuestaSmtp = (error && error.responseCode) || '';
+    const syscall = (error && error.syscall) || '';
+
+    return (
+        `code=${codigo}` +
+        (respuestaSmtp ? ` smtp=${respuestaSmtp}` : '') +
+        (syscall ? ` syscall=${syscall}` : '') +
+        (texto ? ` :: ${texto}` : '')
+    );
+}
+
 // ===========================================
 // SOLICITAR RECUPERACIÓN
 // La respuesta pública SIEMPRE es genérica: nunca
@@ -82,7 +120,12 @@ async function solicitarRecuperacion(correo) {
         if (error instanceof ErrorCorreo) {
             console.error('Recuperación: SMTP sin configurar, el correo no se pudo enviar.');
         } else {
-            console.error('Recuperación: error al enviar el correo de recuperación.');
+            // Registro diagnóstico sanitizado: distingue EAUTH,
+            // ETIMEDOUT, ECONNECTION, ESOCKET, etc. sin secretos.
+            console.error(
+                'Recuperación: error al enviar el correo de recuperación.',
+                describirErrorCorreo(error)
+            );
         }
 
         return { enviado: false };
@@ -155,5 +198,6 @@ async function restablecerContrasena({ token, contrasena, confirmacion }) {
 
 module.exports = {
     solicitarRecuperacion,
-    restablecerContrasena
+    restablecerContrasena,
+    describirErrorCorreo
 };
