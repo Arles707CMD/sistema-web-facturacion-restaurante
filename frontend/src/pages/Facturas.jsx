@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import Mensaje from '../components/Mensaje';
 import Modal from '../components/common/Modal';
+import ConfirmarEliminacion from '../components/common/ConfirmarEliminacion';
 import FacturaTable from '../components/FacturaTable';
 import FacturaDetalle from '../components/FacturaDetalle';
 
@@ -41,6 +42,11 @@ function Facturas() {
     // Factura seleccionada para visualizar (con detalle)
     const [facturaVer, setFacturaVer] = useState(null);
     const [modalVerAbierto, setModalVerAbierto] = useState(false);
+
+    // Factura seleccionada para eliminar (diálogo de confirmación)
+    const [facturaEliminar, setFacturaEliminar] = useState(null);
+    const [eliminandoFactura, setEliminandoFactura] = useState(false);
+    const [errorEliminarFactura, setErrorEliminarFactura] = useState('');
 
     // Carga las facturas al montar el componente
     useEffect(() => {
@@ -81,24 +87,48 @@ function Facturas() {
         }
     }
 
-    // Elimina una factura tras confirmar (restaura stock en backend)
-    async function eliminarFacturaHandler(factura) {
-        const confirmar = confirm(
-            '¿Desea eliminar la factura ' + factura.numero_factura +
-            '? El stock de sus productos se restaurará.'
-        );
+    // Abre el diálogo de confirmación de eliminación
+    // (sin cuadros nativos del navegador).
+    function eliminarFacturaHandler(factura) {
+        setErrorEliminarFactura('');
+        setFacturaEliminar(factura);
+    }
 
-        if (!confirmar) {
+    // Cierra el diálogo de confirmación sin eliminar nada.
+    function cancelarEliminacionFactura() {
+        if (eliminandoFactura) {
             return;
         }
 
+        setFacturaEliminar(null);
+        setErrorEliminarFactura('');
+    }
+
+    // Elimina la factura SOLO tras la confirmación explícita
+    // (restaura stock en el backend). Protegido contra dobles envíos.
+    async function confirmarEliminacionFactura() {
+        if (!facturaEliminar || eliminandoFactura) {
+            return;
+        }
+
+        setEliminandoFactura(true);
+        setErrorEliminarFactura('');
+
         try {
-            await eliminarFactura(factura.id_factura);
+            await eliminarFactura(facturaEliminar.id_factura);
+
+            setFacturaEliminar(null);
             mostrarMensaje('Factura eliminada correctamente.', 'exito');
             await cargarFacturas();
         } catch (error) {
             console.error('Error al eliminar factura:', error.message);
-            mostrarMensaje(error.message, 'error');
+            // El error se muestra dentro del diálogo; no se
+            // informa de éxito si el servidor rechazó la operación.
+            setErrorEliminarFactura(
+                error.message || 'No se pudo eliminar la factura. Inténtalo de nuevo.'
+            );
+        } finally {
+            setEliminandoFactura(false);
         }
     }
 
@@ -231,6 +261,34 @@ return (
                 >
                     <FacturaDetalle factura={facturaVer} />
                 </Modal>
+            )}
+
+            {facturaEliminar && (
+                <ConfirmarEliminacion
+                    titulo="¿Eliminar factura?"
+                    textoBoton="Eliminar factura"
+                    advertencia={
+                        'Esta acción es irreversible: la factura se eliminará ' +
+                        'permanentemente y el stock de sus productos se restaurará.'
+                    }
+                    cargando={eliminandoFactura}
+                    error={errorEliminarFactura}
+                    onCancelar={cancelarEliminacionFactura}
+                    onConfirmar={confirmarEliminacionFactura}
+                >
+                    <div className="detalle-datos">
+                        <p><strong>Número:</strong> {facturaEliminar.numero_factura}</p>
+                        <p><strong>Cliente:</strong> {facturaEliminar.cliente}</p>
+                        <p>
+                            <strong>Fecha:</strong>{' '}
+                            {new Date(facturaEliminar.fecha).toLocaleDateString('es-CO')}
+                        </p>
+                        <p>
+                            <strong>Total:</strong>{' '}
+                            ${Number(facturaEliminar.total).toLocaleString('es-CO')}
+                        </p>
+                    </div>
+                </ConfirmarEliminacion>
             )}
         </div>
     );

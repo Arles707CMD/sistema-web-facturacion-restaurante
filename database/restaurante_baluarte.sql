@@ -136,6 +136,7 @@ CREATE TABLE IF NOT EXISTS detalle_factura (
 
 CREATE TABLE IF NOT EXISTS recetas (
     id_receta INT(11) NOT NULL AUTO_INCREMENT,
+    codigo VARCHAR(10) DEFAULT NULL COMMENT 'Código empresarial independiente del id (REC-001, REC-002...)',
     id_producto INT(11) NOT NULL,
     porciones INT(11) NOT NULL,
     tiempo INT(11) NOT NULL,
@@ -144,6 +145,7 @@ CREATE TABLE IF NOT EXISTS recetas (
     fecha_actualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id_receta),
     UNIQUE KEY uq_recetas_producto (id_producto),
+    UNIQUE KEY uq_recetas_codigo (codigo),
     CONSTRAINT fk_recetas_producto FOREIGN KEY (id_producto)
         REFERENCES productos (id_producto)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -206,5 +208,6 @@ CREATE TABLE IF NOT EXISTS secuencias (
 -- Valores iniciales: el mayor código/ya número asignado.
 INSERT INTO secuencias (nombre, valor) VALUES
 ('producto_codigo', 4),
-('factura_numero', 0)
+('factura_numero', 0),
+('receta_codigo', 0)
 ON DUPLICATE KEY UPDATE valor = GREATEST(valor, VALUES(valor));

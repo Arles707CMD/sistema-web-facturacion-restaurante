@@ -11,6 +11,7 @@ versionadas e independientes para aplicar sobre bases de datos ya creadas.
 | 001 | `001_tokens_recuperacion.sql` | Tabla `tokens_recuperacion` para el flujo de recuperación de contraseña. |
 | 002 | `002_codigo_productos.sql` | Columna `codigo` UNIQUE en `productos` + tabla `secuencias` (fila `producto_codigo`). |
 | 003 | `003_secuencia_facturas.sql` | Fila `factura_numero` en `secuencias`. **Requiere 002.** |
+| 004 | `004_codigo_recetas.sql` | Columna `codigo` UNIQUE en `recetas` + fila `receta_codigo` en `secuencias`. **Incluye la renumeración verificada** de la única receta existente (id_receta = 12) a `REC-001` y deja la secuencia en 1 (la siguiente receta será `REC-002`). **Requiere 002.** |
 
 ## Cómo aplicarlas en la base de datos de producción (Aiven)
 

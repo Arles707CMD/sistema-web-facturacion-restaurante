@@ -12,7 +12,8 @@ const {
 } = require('../services/passwordService');
 const {
     formatearCodigoProducto,
-    formatearNumeroFactura
+    formatearNumeroFactura,
+    formatearCodigoReceta
 } = require('../services/secuenciaService');
 const { generarNumeroFactura } = require('../services/ventaService');
 const { describirErrorCorreo } = require('../services/recuperacionService');
@@ -99,6 +100,28 @@ prueba('siguiente número de factura: 9 → FAC-000010', () => {
 
 prueba('el primer número de factura es FAC-000001', () => {
     assert.strictEqual(formatearNumeroFactura(1), 'FAC-000001');
+});
+
+console.log('\nsecuenciaService (códigos empresariales de recetas):');
+
+prueba('el primer código de receta es REC-001', () => {
+    assert.strictEqual(formatearCodigoReceta(1), 'REC-001');
+});
+
+prueba('mantiene el padding de 3 dígitos: 2 → REC-002', () => {
+    assert.strictEqual(formatearCodigoReceta(2), 'REC-002');
+});
+
+prueba('continúa desde el mayor asignado: 12 → REC-013', () => {
+    assert.strictEqual(formatearCodigoReceta(12 + 1), 'REC-013');
+});
+
+prueba('escenario verificado: tras renumerar a REC-001, la siguiente es REC-002', () => {
+    assert.strictEqual(formatearCodigoReceta(1 + 1), 'REC-002');
+});
+
+prueba('códigos con más de 3 dígitos no se truncan: 1234 → REC-1234', () => {
+    assert.strictEqual(formatearCodigoReceta(1234), 'REC-1234');
 });
 
 console.log('\nventaService (fallback mientras la migración 003 no se aplica):');

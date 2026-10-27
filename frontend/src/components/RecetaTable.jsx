@@ -4,8 +4,12 @@
 // porciones, tiempo, estado y acciones.
 // ===========================================
 
+// Devuelve el código empresarial de la receta (columna "codigo"
+// de la base de datos, migración 004). Fallback de compatibilidad:
+// si la migración aún no se ha aplicado, se muestra el cálculo
+// provisional basado en el id.
 function obtenerCodigo(receta) {
-    return 'REC-' + String(receta.id_receta).padStart(3, '0');
+    return receta.codigo || 'REC-' + String(receta.id_receta).padStart(3, '0');
 }
 
 function claseEstado(estado) {

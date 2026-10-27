@@ -10,6 +10,8 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import Mensaje from '../components/Mensaje';
+import Modal from '../components/common/Modal';
+import ConfirmarEliminacion from '../components/common/ConfirmarEliminacion';
 import ProductoForm from '../components/ProductoForm';
 import ProductoTable from '../components/ProductoTable';
 import ResumenCards from '../components/ResumenCards';
@@ -51,6 +53,15 @@ function Productos() {
     // Controla la visibilidad del modal del formulario
     const [modalAbierto, setModalAbierto] = useState(false);
 
+    // Producto seleccionado para visualizar (modal de detalle)
+    const [productoVer, setProductoVer] = useState(null);
+    const [modalVerAbierto, setModalVerAbierto] = useState(false);
+
+    // Producto seleccionado para eliminar (diálogo de confirmación)
+    const [productoEliminar, setProductoEliminar] = useState(null);
+    const [eliminandoProducto, setEliminandoProducto] = useState(false);
+    const [errorEliminarProducto, setErrorEliminarProducto] = useState('');
+
     // Carga los productos desde la API al montar el componente
     useEffect(() => {
         cargarProductos();
@@ -90,22 +101,11 @@ function Productos() {
         setModalAbierto(true);
     }
 
-    // Muestra los datos del producto en una ventana emergente
+    // Abre el modal de detalle del producto (mismo estilo
+    // visual que el detalle de factura, sin alert()).
     function verProducto(producto) {
-        const descripcion = producto.descripcion
-            ? 'Descripción: ' + producto.descripcion + '\n'
-            : '';
-
-        alert(
-            'INFORMACIÓN DEL PRODUCTO\n\n' +
-            'Código: ' + obtenerCodigo(producto) + '\n' +
-            'Producto: ' + producto.nombre + '\n' +
-            descripcion +
-            'Categoría: ' + producto.categoria + '\n' +
-            'Precio: $' + Number(producto.precio).toLocaleString('es-CO') + '\n' +
-            'Stock: ' + producto.stock + '\n' +
-            'Estado: ' + (producto.stock <= 0 ? 'Agotado' : producto.stock <= 10 ? 'Bajo Stock' : 'Disponible')
-        );
+        setProductoVer(producto);
+        setModalVerAbierto(true);
     }
 // Crea o actualiza un producto según corresponda
     async function guardarProducto(datos) {
@@ -129,23 +129,48 @@ function Productos() {
         }
     }
 
-    // Elimina un producto tras confirmar con el usuario
-    async function eliminarProductoHandler(producto) {
-        const confirmarEliminacion = confirm(
-            '¿Está seguro de eliminar "' + producto.nombre + '"?'
-        );
+    // Abre el diálogo de confirmación de eliminación
+    // (sin cuadros nativos del navegador).
+    function eliminarProductoHandler(producto) {
+        setErrorEliminarProducto('');
+        setProductoEliminar(producto);
+    }
 
-        if (!confirmarEliminacion) {
+    // Cierra el diálogo de confirmación sin eliminar nada.
+    function cancelarEliminacionProducto() {
+        if (eliminandoProducto) {
             return;
         }
 
+        setProductoEliminar(null);
+        setErrorEliminarProducto('');
+    }
+
+    // Elimina el producto SOLO tras la confirmación explícita.
+    // Protegido contra dobles envíos; si el backend impide la
+    // eliminación (registros relacionados), el error se muestra
+    // dentro del diálogo y no se informa de éxito.
+    async function confirmarEliminacionProducto() {
+        if (!productoEliminar || eliminandoProducto) {
+            return;
+        }
+
+        setEliminandoProducto(true);
+        setErrorEliminarProducto('');
+
         try {
-            await eliminarProducto(producto.id_producto);
+            await eliminarProducto(productoEliminar.id_producto);
+
+            setProductoEliminar(null);
             mostrarMensaje('Producto eliminado correctamente.', 'exito');
             await cargarProductos();
         } catch (error) {
             console.error('Error al eliminar producto:', error.message);
-            mostrarMensaje(error.message, 'error');
+            setErrorEliminarProducto(
+                error.message || 'No se pudo eliminar el producto. Inténtalo de nuevo.'
+            );
+        } finally {
+            setEliminandoProducto(false);
         }
     }
 
@@ -246,6 +271,59 @@ function Productos() {
                     onGuardar={guardarProducto}
                     onCerrar={() => setModalAbierto(false)}
                 />
+            )}
+
+            {modalVerAbierto && productoVer && (
+                <Modal
+                    titulo={'Producto ' + obtenerCodigo(productoVer)}
+                    onClose={() => setModalVerAbierto(false)}
+                >
+                    <div className="detalle-datos">
+                        <p><strong>Código:</strong> {obtenerCodigo(productoVer)}</p>
+                        <p><strong>Nombre:</strong> {productoVer.nombre}</p>
+                        <p><strong>Categoría:</strong> {productoVer.categoria}</p>
+                        <p>
+                            <strong>Precio:</strong>{' '}
+                            ${Number(productoVer.precio).toLocaleString('es-CO')}
+                        </p>
+                        <p><strong>Existencias:</strong> {productoVer.stock}</p>
+                        <p>
+                            <strong>Estado:</strong>{' '}
+                            {productoVer.stock <= 0
+                                ? 'Agotado'
+                                : productoVer.stock <= 10
+                                    ? 'Bajo Stock'
+                                    : 'Disponible'}
+                        </p>
+                        <p>
+                            <strong>Descripción:</strong>{' '}
+                            {productoVer.descripcion || 'Sin descripción'}
+                        </p>
+                    </div>
+                </Modal>
+            )}
+
+            {productoEliminar && (
+                <ConfirmarEliminacion
+                    titulo="¿Eliminar producto?"
+                    textoBoton="Eliminar producto"
+                    advertencia={
+                        'El producto se eliminará permanentemente. Si tiene ventas, ' +
+                        'facturas o recetas asociadas, el servidor impedirá la eliminación.'
+                    }
+                    cargando={eliminandoProducto}
+                    error={errorEliminarProducto}
+                    onCancelar={cancelarEliminacionProducto}
+                    onConfirmar={confirmarEliminacionProducto}
+                >
+                    <div className="detalle-datos">
+                        <p>
+                            <strong>Código:</strong> {obtenerCodigo(productoEliminar)}
+                        </p>
+                        <p><strong>Nombre:</strong> {productoEliminar.nombre}</p>
+                        <p><strong>Categoría:</strong> {productoEliminar.categoria}</p>
+                    </div>
+                </ConfirmarEliminacion>
             )}
         </div>
     );

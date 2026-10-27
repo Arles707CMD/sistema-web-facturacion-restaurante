@@ -308,7 +308,14 @@ function Login() {
                     </button>
                 </form>
 
-                {modo !== 'recuperar' && (
+                {modo === 'recuperar' ? (
+                    <p className="login-cambiar">
+                        <button type="button" onClick={() => cambiarModo('login')}>
+                            <i className="fa-solid fa-arrow-left"></i>
+                            Volver a iniciar sesión
+                        </button>
+                    </p>
+                ) : (
                     <p className="login-cambiar">
                         {modo === 'login' ? (
                             <>

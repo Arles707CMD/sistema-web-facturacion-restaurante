@@ -30,6 +30,11 @@ function formatearNumeroFactura(valor) {
     return 'FAC-' + String(Number(valor)).padStart(6, '0');
 }
 
+// Formatea un valor numérico como código de receta (REC-001).
+function formatearCodigoReceta(valor) {
+    return 'REC-' + String(Number(valor)).padStart(3, '0');
+}
+
 // Obtiene el siguiente valor de la secuencia de forma atómica.
 // DEBE ejecutarse dentro de la transacción del llamador: el
 // SELECT ... FOR UPDATE bloquea la fila hasta el COMMIT, lo que
@@ -61,5 +66,6 @@ module.exports = {
     esErrorSecuenciaInexistente,
     formatearCodigoProducto,
     formatearNumeroFactura,
+    formatearCodigoReceta,
     siguienteValor
 };

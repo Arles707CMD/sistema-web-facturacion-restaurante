@@ -612,3 +612,93 @@ button {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
+
+/* ===========================================
+   DIÁLOGO DE CONFIRMACIÓN DE ELIMINACIÓN
+   (compartido: facturas y productos)
+   Mismo lenguaje visual que el detalle de
+   factura (modal del sistema).
+   =========================================== */
+
+.confirmar-eliminacion {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Bloque de datos identificativos. */
+.detalle-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #f9fafb;
+    border-radius: var(--radius-sm);
+    padding: 14px;
+}
+
+.detalle-datos p {
+    font-size: 14px;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.detalle-datos strong {
+    color: var(--color-text);
+}
+
+.confirmar-advertencia {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.confirmar-advertencia i {
+    color: #d97706;
+    font-size: 16px;
+}
+
+.confirmar-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.confirmar-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.confirmar-acciones .btn-red {
+    min-width: 170px;
+    justify-content: center;
+}
+
+@media (max-width: 560px) {
+    .confirmar-acciones {
+        flex-direction: column-reverse;
+    }
+
+    .confirmar-acciones .btn-red,
+    .confirmar-acciones .btn-gray {
+        width: 100%;
+        min-width: 0;
+    }
+}
