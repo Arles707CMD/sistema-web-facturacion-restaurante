@@ -122,13 +122,92 @@ function rateLimitLogin(req, res, next) {
     next();
 }
 
+// ===========================================
+// RATE LIMIT DE RECUPERACIÓN DE CONTRASEÑA
+// En memoria, igual que el del login (adecuado para
+// un solo servidor; para varias instancias, Redis).
+// ===========================================
+
+const MAX_SOLICITUDES_RECUPERACION = 3;
+const VENTANA_RECUPERACION_MS = 15 * 60 * 1000;
+const solicitudesRecuperacion = new Map();
+
+// Clave por IP + token (para el endpoint de restablecer).
+function claveRestablecer(req) {
+    const ip = req.ip || (req.socket && req.socket.remoteAddress) || 'local';
+    const token =
+        req.body && req.body.token ? String(req.body.token).slice(0, 12) : '';
+
+    return ip + '|' + token;
+}
+
+// Registra una solicitud de recuperación (cada envío cuenta).
+function registrarSolicitudRecuperacion(key) {
+    const ahora = Date.now();
+    const actual = solicitudesRecuperacion.get(key);
+
+    if (!actual || ahora - actual.primero > VENTANA_RECUPERACION_MS) {
+        solicitudesRecuperacion.set(key, { count: 1, primero: ahora });
+    } else {
+        actual.count += 1;
+    }
+}
+
+// Registra un intento fallido de restablecer (token inválido, etc.).
+function registrarIntentoRestablecer(key) {
+    registrarSolicitudRecuperacion(key);
+}
+
+// Rate limit de "recuperar": 3 solicitudes por IP + correo / 15 min.
+function rateLimitRecuperacion(req, res, next) {
+    const key = claveIntento(req);
+    const actual = solicitudesRecuperacion.get(key);
+
+    if (actual && actual.count >= MAX_SOLICITUDES_RECUPERACION) {
+        if (Date.now() - actual.primero <= VENTANA_RECUPERACION_MS) {
+            return res.status(429).json({
+                mensaje:
+                    'Demasiadas solicitudes de recuperación. ' +
+                    'Espera unos minutos e inténtalo de nuevo.'
+            });
+        }
+
+        solicitudesRecuperacion.delete(key);
+    }
+
+    next();
+}
+
+// Rate limit de "restablecer": bloquea abuso con tokens inválidos.
+function rateLimitRestablecer(req, res, next) {
+    const key = claveRestablecer(req);
+    const actual = solicitudesRecuperacion.get(key);
+
+    if (actual && actual.count >= MAX_SOLICITUDES_RECUPERACION * 3) {
+        if (Date.now() - actual.primero <= VENTANA_RECUPERACION_MS) {
+            return res.status(429).json({
+                mensaje: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.'
+            });
+        }
+
+        solicitudesRecuperacion.delete(key);
+    }
+
+    next();
+}
+
 module.exports = {
     claveIntento,
+    claveRestablecer,
     noCache,
     seguridadHeaders,
     autenticar,
     autorizarRol,
     registrarIntentoFallido,
     limpiarIntentos,
-    rateLimitLogin
+    rateLimitLogin,
+    registrarSolicitudRecuperacion,
+    registrarIntentoRestablecer,
+    rateLimitRecuperacion,
+    rateLimitRestablecer
 };

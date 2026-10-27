@@ -4,23 +4,60 @@
 // token JWT de la sesión en el encabezado
 // Authorization y redirige a /login cuando el
 // token no es válido o ha expirado (HTTP 401).
+//
+// GESTIÓN DE LA SESIÓN ("Recordarme"):
+// - Con "Recordarme": la sesión se guarda en
+//   localStorage y sobrevive al cerrar el
+//   navegador (duración TOKEN_EXPIRA_RECUERDA).
+// - Sin "Recordarme": la sesión se guarda en
+//   sessionStorage y se pierde al cerrar la
+//   pestaña o el navegador (TOKEN_EXPIRA).
+// Nunca se guarda la contraseña del usuario.
 // ===========================================
 
 const CLAVE_SESION = 'sesionBaluarte';
+const CLAVE_PREFERENCIA = 'preferenciaSesionBaluarte';
 
-// Lee la sesión guardada en localStorage.
+// Lee la sesión guardada (sessionStorage o localStorage).
 function obtenerSesion() {
     try {
-        return JSON.parse(localStorage.getItem(CLAVE_SESION)) || null;
+        const datos =
+            sessionStorage.getItem(CLAVE_SESION) ||
+            localStorage.getItem(CLAVE_SESION);
+
+        return datos ? JSON.parse(datos) : null;
     } catch (error) {
         return null;
     }
 }
 
-// Limpia la sesión (útil en token vencido o al cerrar sesión).
-function cerrarSesion() {
+// Guarda la sesión en el almacén correspondiente según la
+// persistencia elegida. La sesión vive en UN solo almacén para
+// evitar copias desincronizadas.
+function guardarSesion(sesion, persistente) {
+    const datos = JSON.stringify(sesion);
+
+    sessionStorage.removeItem(CLAVE_SESION);
     localStorage.removeItem(CLAVE_SESION);
-    localStorage.removeItem('recordarCorreo');
+
+    if (persistente) {
+        localStorage.setItem(CLAVE_SESION, datos);
+        localStorage.setItem(CLAVE_PREFERENCIA, 'persistente');
+    } else {
+        sessionStorage.setItem(CLAVE_SESION, datos);
+        localStorage.setItem(CLAVE_PREFERENCIA, 'sesion');
+    }
+}
+
+// Limpia la sesión por completo (ambos almacenes) junto con la
+// preferencia de persistencia. Útil con token vencido o al
+// cerrar sesión manualmente. El correo de "Recordarme" (solo el
+// correo, nunca la sesión ni la contraseña) se conserva para
+// rellenar el login.
+function cerrarSesion() {
+    sessionStorage.removeItem(CLAVE_SESION);
+    localStorage.removeItem(CLAVE_SESION);
+    localStorage.removeItem(CLAVE_PREFERENCIA);
 }
 
 // fetch con autenticación: añade el Bearer token,
@@ -49,4 +86,4 @@ async function apiFetch(ruta, opciones = {}) {
     return respuesta;
 }
 
-export { apiFetch, obtenerSesion, cerrarSesion };
+export { apiFetch, obtenerSesion, guardarSesion, cerrarSesion };

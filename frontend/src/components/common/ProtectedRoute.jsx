@@ -12,9 +12,13 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { modulos } from '../../config/navegacion';
 
 // Obtiene la sesión guardada (null si no existe o es inválida).
+// "Recordarme" guarda la sesión en localStorage; sin él, en
+// sessionStorage (se pierde al cerrar el navegador).
 function obtenerSesion() {
     try {
-        const sesion = localStorage.getItem('sesionBaluarte');
+        const sesion =
+            sessionStorage.getItem('sesionBaluarte') ||
+            localStorage.getItem('sesionBaluarte');
 
         if (!sesion) {
             return null;

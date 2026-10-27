@@ -1,5 +1,6 @@
 const database = require('../config/database');
 const facturaModel = require('../models/facturaModel');
+const secuenciaService = require('./secuenciaService');
 const { ErrorServicio } = require('./errors');
 
 // ===========================================
@@ -106,8 +107,24 @@ async function crearVenta(datosVenta) {
         const iva = subtotal * (ivaPorcentaje / 100);
         const total = subtotal + iva;
 
-        const ultimoNumero = await facturaModel.obtenerUltimoNumeroFactura(connection);
-        const numeroFactura = generarNumeroFactura(ultimoNumero);
+        // Número de factura desde la secuencia empresarial atómica
+        // (migración 003). El SELECT ... FOR UPDATE serializa ventas
+        // simultáneas y el contador nunca retrocede, por lo que no se
+        // reutilizan números de facturas eliminadas.
+        let numeroFactura;
+
+        try {
+            const valor = await secuenciaService.siguienteValor(connection, 'factura_numero');
+            numeroFactura = secuenciaService.formatearNumeroFactura(valor);
+        } catch (error) {
+            if (!secuenciaService.esErrorSecuenciaInexistente(error)) {
+                throw error;
+            }
+
+            // Fallback (migración 003 pendiente): comportamiento previo.
+            const ultimoNumero = await facturaModel.obtenerUltimoNumeroFactura(connection);
+            numeroFactura = generarNumeroFactura(ultimoNumero);
+        }
 
         const idFactura = await facturaModel.insertarFactura(connection, {
             numeroFactura,
@@ -151,5 +168,6 @@ async function crearVenta(datosVenta) {
 }
 
 module.exports = {
-    crearVenta
+    crearVenta,
+    generarNumeroFactura
 };

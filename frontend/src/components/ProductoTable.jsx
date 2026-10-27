@@ -9,9 +9,12 @@ function formatearPrecio(precio) {
     return '$' + Number(precio).toLocaleString('es-CO');
 }
 
-// Genera el código visual a partir del id del producto
+// Devuelve el código empresarial del producto (columna "codigo"
+// de la base de datos, migración 002). Fallback de compatibilidad:
+// si la migración aún no se ha aplicado, se muestra el cálculo
+// provisional basado en el id.
 function obtenerCodigo(producto) {
-    return 'P' + String(producto.id_producto).padStart(3, '0');
+    return producto.codigo || 'P' + String(producto.id_producto).padStart(3, '0');
 }
 
 // Determina la clase de color según el stock

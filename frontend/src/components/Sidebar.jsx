@@ -10,11 +10,17 @@ import { NavLink, useNavigate } from 'react-router-dom';
 
 import logo from '../assets/logo.png';
 import { modulos } from '../config/navegacion';
+import { cerrarSesion as cerrarSesionApi } from '../api/apiClient';
 
-// Obtiene el usuario logueado desde localStorage.
+// Obtiene el usuario logueado (sessionStorage con sesión normal,
+// localStorage con "Recordarme").
 function obtenerUsuario() {
     try {
-        return JSON.parse(localStorage.getItem('sesionBaluarte')) || null;
+        const sesion =
+            sessionStorage.getItem('sesionBaluarte') ||
+            localStorage.getItem('sesionBaluarte');
+
+        return sesion ? JSON.parse(sesion) : null;
     } catch (error) {
         return null;
     }
@@ -29,9 +35,10 @@ function Sidebar() {
         (modulo) => !Array.isArray(modulo.roles) || modulo.roles.includes(usuario?.rol)
     );
 
-    // Cierra sesión: limpia el almacenamiento y vuelve al login.
+    // Cierra sesión: limpia la sesión completa (ambos almacenes,
+    // token incluido) y vuelve al login.
     function cerrarSesion() {
-        localStorage.removeItem('sesionBaluarte');
+        cerrarSesionApi();
         navigate('/login');
     }
 

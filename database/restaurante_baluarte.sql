@@ -30,12 +30,14 @@ CREATE TABLE IF NOT EXISTS categorias (
 
 CREATE TABLE IF NOT EXISTS productos (
     id_producto INT(11) NOT NULL AUTO_INCREMENT,
+    codigo VARCHAR(10) DEFAULT NULL COMMENT 'Código empresarial independiente del id (P001, P002...)',
     nombre VARCHAR(150) NOT NULL,
     descripcion VARCHAR(255) DEFAULT NULL,
     precio DECIMAL(10, 2) NOT NULL,
     stock INT(11) NOT NULL DEFAULT 0,
     id_categoria INT(11) NOT NULL,
     PRIMARY KEY (id_producto),
+    UNIQUE KEY uq_productos_codigo (codigo),
     KEY fk_productos_categoria (id_categoria),
     CONSTRAINT fk_productos_categoria FOREIGN KEY (id_categoria)
         REFERENCES categorias (id_categoria)
@@ -55,11 +57,11 @@ INSERT INTO categorias (id_categoria, nombre, descripcion) VALUES
 -- DATOS INICIALES: productos (4 productos originales)
 -- ============================================================
 
-INSERT INTO productos (id_producto, nombre, descripcion, precio, stock, id_categoria) VALUES
-(1, 'Hamburguesa Baluarte', 'Hamburguesa especial de la casa', 18000.00, 20, 1),
-(2, 'Hamburguesa Clasica', 'Hamburguesa tradicional', 15000.00, 15, 1),
-(3, 'Gaseosa', 'Bebida gaseosa personal', 5000.00, 30, 2),
-(4, 'Papas Fritas', 'Porcion de papas fritas', 7000.00, 25, 3);
+INSERT INTO productos (id_producto, codigo, nombre, descripcion, precio, stock, id_categoria) VALUES
+(1, 'P001', 'Hamburguesa Baluarte', 'Hamburguesa especial de la casa', 18000.00, 20, 1),
+(2, 'P002', 'Hamburguesa Clasica', 'Hamburguesa tradicional', 15000.00, 15, 1),
+(3, 'P003', 'Gaseosa', 'Bebida gaseosa personal', 5000.00, 30, 2),
+(4, 'P004', 'Papas Fritas', 'Porcion de papas fritas', 7000.00, 25, 3);
 -- ============================================================
 -- TABLA: usuarios
 -- ============================================================
@@ -166,3 +168,43 @@ CREATE TABLE IF NOT EXISTS configuracion (
 INSERT INTO configuracion (id, nombre, meta_mensual, iva) VALUES
 (1, 'Restaurante Baluarte', 50000000, 19)
 ON DUPLICATE KEY UPDATE id = id;
+
+-- ============================================================
+-- TABLA: tokens_recuperacion (migración 001)
+-- Tokens de recuperación de contraseña (solo hash SHA-256,
+-- caducidad 15 minutos, uso único).
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS tokens_recuperacion (
+    id_token INT(11) NOT NULL AUTO_INCREMENT,
+    id_usuario INT(11) NOT NULL,
+    token_hash VARCHAR(64) NOT NULL COMMENT 'SHA-256 hex del token, nunca el token en claro',
+    expiracion DATETIME NOT NULL,
+    usado TINYINT(1) NOT NULL DEFAULT 0,
+    fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_token),
+    KEY idx_tokens_hash (token_hash),
+    KEY idx_tokens_usuario (id_usuario),
+    KEY idx_tokens_expiracion (expiracion),
+    CONSTRAINT fk_tokens_usuario FOREIGN KEY (id_usuario)
+        REFERENCES usuarios (id_usuario)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLA: secuencias (migraciones 002 y 003)
+-- Contadores empresariales independientes de los ids
+-- autoincrementales. Se asignan con SELECT ... FOR UPDATE.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS secuencias (
+    nombre VARCHAR(50) NOT NULL,
+    valor BIGINT NOT NULL DEFAULT 0 COMMENT 'Último valor empresarial usado',
+    PRIMARY KEY (nombre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Valores iniciales: el mayor código/ya número asignado.
+INSERT INTO secuencias (nombre, valor) VALUES
+('producto_codigo', 4),
+('factura_numero', 0)
+ON DUPLICATE KEY UPDATE valor = GREATEST(valor, VALUES(valor));

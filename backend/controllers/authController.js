@@ -16,7 +16,13 @@ const {
 // POST /api/auth/login
 async function login(req, res) {
     try {
-        const { usuario, token, expiraEn } = await authService.iniciarSesion(req.body || {});
+        const cuerpo = req.body || {};
+
+        // "recordarme" activa la expiración de sesión persistente.
+        const { usuario, token, expiraEn } = await authService.iniciarSesion({
+            ...cuerpo,
+            recordarme: Boolean(cuerpo.recordarme)
+        });
 
         // Login correcto: se reinician los intentos fallidos de esta clave.
         limpiarIntentos(claveIntento(req));

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
+import Restablecer from './pages/Restablecer';
 import Dashboard from './pages/Dashboard';
 import Productos from './pages/Productos';
 import Ventas from './pages/Ventas';
@@ -22,6 +23,8 @@ function App() {
     return (
         <Routes>
             <Route path="/login" element={<Login />} />
+            {/* Pantalla pública del enlace de recuperación del correo. */}
+            <Route path="/restablecer" element={<Restablecer />} />
 
             <Route
                 element={

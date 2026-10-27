@@ -47,7 +47,10 @@ function aUsuarioSeguro(usuario) {
 }
 
 // Genera un token JWT con el id y el rol del usuario y su expiración.
-function generarToken(usuario) {
+// Con "recordarme" se usa la duración de sesión persistente
+// (TOKEN_EXPIRA_RECUERDA, por defecto 30 días); sin ella, la
+// duración normal (TOKEN_EXPIRA, por defecto 2 horas).
+function generarToken(usuario, recordarme = false) {
     const secreto = process.env.JWT_SECRET;
 
     if (!secreto) {
@@ -58,7 +61,10 @@ function generarToken(usuario) {
         );
     }
 
-    const expira = process.env.TOKEN_EXPIRA || '2h';
+    const expira = recordarme
+        ? process.env.TOKEN_EXPIRA_RECUERDA || '30d'
+        : process.env.TOKEN_EXPIRA || '2h';
+
     const token = jwt.sign(
         { id_usuario: usuario.id_usuario, rol: usuario.rol },
         secreto,
@@ -123,7 +129,9 @@ async function registrarUsuario({ nombre, correo, contrasena }) {
 
 // Inicia sesión. Ante credenciales inválidas se devuelve un
 // mensaje genérico para no revelar si el correo existe o no.
-async function iniciarSesion({ correo, contrasena }) {
+// "recordarme" (opcional) genera un token con la expiración de
+// sesión persistente (TOKEN_EXPIRA_RECUERDA).
+async function iniciarSesion({ correo, contrasena, recordarme = false }) {
     if (!correo || typeof correo !== 'string' || correo.trim() === '') {
         throw new ErrorAutenticacion('CORREO_REQUERIDO', 'El correo es obligatorio.');
     }
@@ -148,7 +156,7 @@ async function iniciarSesion({ correo, contrasena }) {
         throw new ErrorAutenticacion('CREDENCIALES_INVALIDAS', 'Correo o contraseña incorrectos.', 401);
     }
 
-    const { token, expiraEn } = generarToken(usuario);
+    const { token, expiraEn } = generarToken(usuario, Boolean(recordarme));
 
     return { usuario: aUsuarioSeguro(usuario), token, expiraEn };
 }

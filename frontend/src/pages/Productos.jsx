@@ -22,6 +22,13 @@ import {
     obtenerProductos
 } from '../api/productoApi';
 
+// Devuelve el código empresarial del producto (columna "codigo"
+// de la base de datos, migración 002) con fallback compatible
+// mientras la migración no se aplica.
+function obtenerCodigo(producto) {
+    return producto.codigo || 'P' + String(producto.id_producto).padStart(3, '0');
+}
+
 function Productos() {
     // Usuario en sesión y permisos de edición de productos.
     const usuario = obtenerSesion();
@@ -91,7 +98,7 @@ function Productos() {
 
         alert(
             'INFORMACIÓN DEL PRODUCTO\n\n' +
-            'Código: P' + String(producto.id_producto).padStart(3, '0') + '\n' +
+            'Código: ' + obtenerCodigo(producto) + '\n' +
             'Producto: ' + producto.nombre + '\n' +
             descripcion +
             'Categoría: ' + producto.categoria + '\n' +
@@ -155,7 +162,7 @@ function Productos() {
             const coincideTexto =
                 producto.nombre.toLowerCase().includes(texto) ||
                 producto.categoria.toLowerCase().includes(texto) ||
-                ('P' + String(producto.id_producto).padStart(3, '0')).toLowerCase().includes(texto);
+                obtenerCodigo(producto).toLowerCase().includes(texto);
 
             const coincideCategoria =
                 filtroCategoria === '' || producto.categoria === filtroCategoria;
