@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import Mensaje from '../components/Mensaje';
 import Modal from '../components/common/Modal';
+import ConfirmarEliminacion from '../components/common/ConfirmarEliminacion';
 import RecetaResumen from '../components/RecetaResumen';
 import RecetaTable from '../components/RecetaTable';
 import RecetaForm from '../components/RecetaForm';
@@ -43,6 +44,12 @@ function Recetas() {
 
     // Receta seleccionada para visualizar
     const [recetaVer, setRecetaVer] = useState(null);
+
+    // Receta seleccionada para eliminación (abre el modal de confirmación)
+    const [recetaEliminar, setRecetaEliminar] = useState(null);
+    // Estado de carga y error de la eliminación
+    const [eliminandoReceta, setEliminandoReceta] = useState(false);
+    const [errorEliminarReceta, setErrorEliminarReceta] = useState('');
 
     // Carga recetas y productos al montar
     useEffect(() => {
@@ -111,24 +118,54 @@ function Recetas() {
         }
     }
 
-    // Elimina una receta
-    async function eliminarRecetaHandler(receta) {
-        const confirmar = confirm(
-            '¿Está seguro de eliminar la receta de "' + receta.producto + '"?'
-        );
+    // Abre el modal de confirmacion de eliminacion para la receta indicada.
+    function abrirEliminarReceta(receta) {
+        setRecetaEliminar(receta);
+        setErrorEliminarReceta('');
+    }
 
-        if (!confirmar) {
+    // Cancela la eliminacion: cierra el dialogo sin borrar nada.
+    function cancelarEliminacionReceta() {
+        if (eliminandoReceta) {
+            return;
+        }
+        setRecetaEliminar(null);
+        setErrorEliminarReceta('');
+    }
+
+    // Elimina la receta SOLO tras la confirmacion explicita del usuario.
+    async function confirmarEliminacionReceta() {
+        if (!recetaEliminar || eliminandoReceta) {
             return;
         }
 
+        setEliminandoReceta(true);
+        setErrorEliminarReceta('');
+
         try {
-            await eliminarReceta(receta.id_receta);
+            await eliminarReceta(recetaEliminar.id_receta);
+
+            setRecetaEliminar(null);
             mostrarMensaje('Receta eliminada correctamente.', 'exito');
             await cargarDatos();
         } catch (error) {
             console.error('Error al eliminar receta:', error.message);
-            mostrarMensaje(error.message, 'error');
+            setErrorEliminarReceta(
+                error.message || 'No se pudo eliminar la receta. Intentalo de nuevo.'
+            );
+        } finally {
+            setEliminandoReceta(false);
         }
+    }
+
+    // Codigo empresarial con fallback (REC-XXX)
+    function obtenerCodigoReceta(receta) {
+        if (receta && receta.codigo) {
+            return receta.codigo;
+        }
+        return receta && receta.id_receta != null
+            ? 'REC-' + String(receta.id_receta).padStart(3, '0')
+            : 'REC-??';
     }
 
     // Recetas filtradas por búsqueda y estado
@@ -205,7 +242,7 @@ return (
                         recetas={recetasFiltradas}
                         onVer={verReceta}
                         onEditar={abrirEditarReceta}
-                        onEliminar={eliminarRecetaHandler}
+                        onEliminar={abrirEliminarReceta}
                     />
                 )}
             </section>
@@ -232,6 +269,20 @@ return (
                         </p>
                     </div>
                 </Modal>
+            )}
+            {recetaEliminar && (
+                <ConfirmarEliminacion
+                    titulo="¿Estás seguro de eliminar la receta?"
+                    advertencia={`Está a punto de eliminar la receta de "${recetaEliminar.producto}". Esta acción no se puede deshacer.`}
+                    cargando={eliminandoReceta}
+                    error={errorEliminarReceta}
+                    onCancelar={cancelarEliminacionReceta}
+                    onConfirmar={confirmarEliminacionReceta}
+                >
+                    <p><strong>Código:</strong> {obtenerCodigoReceta(recetaEliminar)}</p>
+                    <p><strong>Producto:</strong> {recetaEliminar.producto}</p>
+                    <p><strong>Categoría:</strong> {recetaEliminar.categoria}</p>
+                </ConfirmarEliminacion>
             )}
         </div>
     );

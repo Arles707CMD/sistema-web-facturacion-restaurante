@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import Mensaje from '../components/Mensaje';
 import Modal from '../components/common/Modal';
+import ConfirmarEliminacion from '../components/common/ConfirmarEliminacion';
 import UsuarioForm from '../components/UsuarioForm';
 import UsuarioResumen from '../components/UsuarioResumen';
 import UsuarioTable from '../components/UsuarioTable';
@@ -42,6 +43,11 @@ function Usuarios() {
 
     // Usuario seleccionado para visualizar (modal de detalle)
     const [usuarioVer, setUsuarioVer] = useState(null);
+
+    // Usuario seleccionado para eliminar (diálogo de confirmación)
+    const [usuarioEliminar, setUsuarioEliminar] = useState(null);
+    const [eliminandoUsuario, setEliminandoUsuario] = useState(false);
+    const [errorEliminarUsuario, setErrorEliminarUsuario] = useState('');
 
     // Carga los usuarios al montar el componente
     useEffect(() => {
@@ -109,23 +115,45 @@ function Usuarios() {
         }
     }
 
-    // Elimina un usuario tras confirmar con el usuario
-    async function eliminarUsuarioHandler(usuario) {
-        const confirmarEliminacion = confirm(
-            '¿Está seguro de eliminar a "' + usuario.nombre + '"?'
-        );
+    // Abre el diálogo de confirmación de eliminación
+    // (sin cuadros nativos del navegador).
+    function abrirEliminarUsuario(usuario) {
+        setErrorEliminarUsuario('');
+        setUsuarioEliminar(usuario);
+    }
 
-        if (!confirmarEliminacion) {
+    // Cierra el diálogo de confirmación sin eliminar nada.
+    function cancelarEliminacionUsuario() {
+        if (eliminandoUsuario) {
             return;
         }
 
+        setUsuarioEliminar(null);
+        setErrorEliminarUsuario('');
+    }
+
+    // Elimina el usuario SOLO tras la confirmación explícita del usuario.
+    async function confirmarEliminacionUsuario() {
+        if (!usuarioEliminar || eliminandoUsuario) {
+            return;
+        }
+
+        setEliminandoUsuario(true);
+        setErrorEliminarUsuario('');
+
         try {
-            await eliminarUsuario(usuario.id_usuario);
+            await eliminarUsuario(usuarioEliminar.id_usuario);
+
+            setUsuarioEliminar(null);
             mostrarMensaje('Usuario eliminado correctamente.', 'exito');
             await cargarUsuarios();
         } catch (error) {
             console.error('Error al eliminar usuario:', error.message);
-            mostrarMensaje(error.message, 'error');
+            setErrorEliminarUsuario(
+                error.message || 'No se pudo eliminar el usuario. Inténtalo de nuevo.'
+            );
+        } finally {
+            setEliminandoUsuario(false);
         }
     }
 
@@ -205,7 +233,7 @@ return (
                         usuarios={usuariosFiltrados}
                         onVer={verUsuario}
                         onEditar={abrirEditarUsuario}
-                        onEliminar={eliminarUsuarioHandler}
+                        onEliminar={abrirEliminarUsuario}
                     />
                 )}
             </section>
@@ -233,6 +261,25 @@ return (
                     </div>
                 </Modal>
             )}
+            {usuarioEliminar && (
+                <ConfirmarEliminacion
+                    titulo="¿Eliminar usuario?"
+                    textoBoton="Eliminar usuario"
+                    advertencia={`Está a punto de eliminar al usuario "${usuarioEliminar.nombre}". Esta acción no se puede deshacer.`}
+                    cargando={eliminandoUsuario}
+                    error={errorEliminarUsuario}
+                    onCancelar={cancelarEliminacionUsuario}
+                    onConfirmar={confirmarEliminacionUsuario}
+                >
+                    <div className="detalle-datos">
+                        <p><strong>Nombre:</strong> {usuarioEliminar.nombre}</p>
+                        <p><strong>Correo:</strong> {usuarioEliminar.correo}</p>
+                        <p><strong>Rol:</strong> {usuarioEliminar.rol}</p>
+                        <p><strong>Estado:</strong> {usuarioEliminar.estado}</p>
+                    </div>
+                </ConfirmarEliminacion>
+            )}
+
         </div>
     );
 }
