@@ -16,70 +16,137 @@
 
 /* ===========================================
    GRID Y TARJETAS DE PRODUCTO
+   Criterios UX/UI aplicados:
+   - Grid con filas de altura uniforme (align-items: stretch).
+   - Tarjeta en columna con tres áreas fijas: nombre,
+     detalle (precio + stock) y botón anclado a la base.
+   - El área del nombre reserva espacio para dos líneas,
+     por lo que nombres de una o dos líneas no desalinean
+     el resto de elementos.
+   - Precio y stock se distribuyen con flexbox y gap:
+     nunca se juntan, en ninguna resolución.
    =========================================== */
 
 .productos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 16px;
+    align-items: stretch;
 }
 
 .producto-card {
-    background: #ffffff;
-    border: 1px solid #eeeeee;
-    border-radius: 12px;
-    padding: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease;
+    gap: 12px;
+    box-shadow: var(--shadow-md);
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition);
+    /* Ocupa toda la altura de su fila del grid:
+       todas las tarjetas de la fila quedan iguales. */
+    height: 100%;
 }
 
 .producto-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
 }
 
-.producto-card h3 {
+/* ÁREA 1 — Nombre.
+   min-height reserva dos líneas (15px × 1.4 × 2 ≈ 42px):
+   los nombres cortos y largos empiezan y "terminan" en
+   el mismo bloque, alineando la fila de detalle. */
+.producto-card-nombre {
     font-size: 15px;
-    color: #111827;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-text);
     margin: 0;
+    min-height: 42px;
+    overflow-wrap: break-word;
+    /* Nombres muy largos: máximo dos líneas con elipsis */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ÁREA 2 — Detalle: precio (izquierda) y stock (derecha).
+   Flexbox con separación (gap) y space-between: queda un
+   espacio horizontal claro entre ambos en cualquier ancho;
+   si el espacio no alcanza, el badge pasa a la línea
+   siguiente sin juntarse con el precio. */
+.producto-card-detalle {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f3f4f6;
 }
 
 .producto-card-precio {
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 700;
-    color: #e53935;
+    line-height: 1;
+    color: var(--color-primary);
+    white-space: nowrap;
 }
 
+/* Stock como badge secundario: legible, discreto y
+   alineado a la derecha, separado del precio. */
 .producto-card-stock {
     font-size: 12px;
-    color: #777777;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    background: #f3f4f6;
+    border-radius: 999px;
+    padding: 4px 10px;
+    white-space: nowrap;
+    margin-left: auto;
 }
 
 .producto-card-stock.agotado {
-    color: #dc2626;
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
     font-weight: 600;
 }
 
+/* ÁREA 3 — Botón anclado a la base de la tarjeta:
+   con margin-top: auto todas quedan a la misma altura. */
 .btn-agregar {
-    background: #e53935;
+    margin-top: auto;
+    width: 100%;
+    background: var(--color-primary);
     color: #ffffff;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     padding: 10px;
     cursor: pointer;
     font-weight: 600;
+    font-size: 14px;
     font-family: 'Poppins', sans-serif;
-    transition: background 0.25s ease;
+    transition: background var(--transition);
 }
 
-.btn-agregar:hover {
-    background: #c62828;
+.btn-agregar:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+}
+
+.btn-agregar:focus-visible {
+    outline: 3px solid rgba(220, 38, 38, 0.35);
+    outline-offset: 2px;
 }
 
 .btn-agregar:disabled {
-    background: #cccccc;
+    background: #e5e7eb;
+    color: var(--color-text-muted);
     cursor: not-allowed;
 }
 
@@ -159,5 +226,39 @@
 @media (max-width: 992px) {
     .ventas-layout {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Tarjetas más compactas en móviles, conservando
+       la alineación uniforme y la separación precio/stock. */
+    .productos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+    .producto-card {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .producto-card-nombre {
+        font-size: 14px;
+        /* Dos líneas a 14px × 1.4 ≈ 40px */
+        min-height: 40px;
+    }
+
+    .producto-card-detalle {
+        gap: 6px 8px;
+        padding-top: 10px;
+    }
+
+    .producto-card-precio {
+        font-size: 17px;
+    }
+
+    .producto-card-stock {
+        font-size: 11px;
+        padding: 3px 8px;
     }
 }
