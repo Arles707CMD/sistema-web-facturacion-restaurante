@@ -13,3 +13,11 @@ postman/documents/
 postman/flows/
 postman/mocks/
 postman/specs/
+
+# Entregable generado para el instructor (SENA): no forma parte
+# del código fuente; se distribuye fuera del repositorio.
+RESTAURANTE_BALUARTE_ENTREGA_SENA.zip
+
+# Pack de favicons: duplicados bit a bit de los ya versionados en
+# frontend/public/ + emblema de diseño no referenciado por el código.
+baluarte-favicon-pack/
